@@ -9,14 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
-        sans:  ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans:    ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono:    ['ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
-        ink:   '#15171A',
-        paper: '#FAFAF7',
-        stone: '#EFECE5',
-        muted: '#7A7568',
+        ink:    '#0F1623',
+        paper:  '#FFFFFF',
+        stone:  '#F0F4FA',
+        muted:  '#6B7A99',
+        clinic: '#1B5FBE',
       },
     },
   },

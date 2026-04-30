@@ -11,46 +11,43 @@ interface Props {
 
 export default function NavBar({ lang, setLang, S, accent }: Props) {
   return (
-    <header className="absolute top-0 left-0 right-0 z-30 section-pad pt-6">
-      {/* All items grouped left — aligned with the hero content column */}
-      <div className="flex items-center gap-8">
+    <header className="absolute top-0 left-0 right-0 z-30 section-pad pt-5">
+      <div className="flex items-center gap-8 bg-white/80 backdrop-blur border border-ink/8 rounded-2xl px-5 py-3 shadow-sm">
         {/* Logo */}
         <div className="flex items-center gap-2.5 shrink-0">
           <div
-            className="h-9 w-9 rounded-full grid place-items-center text-white font-display italic text-[18px]"
-            style={{ background: '#15171A' }}
+            className="h-9 w-9 rounded-xl grid place-items-center text-white text-[15px] font-bold"
+            style={{ background: '#1B5FBE' }}
           >
-            v
+            V
           </div>
-          <div className="font-display text-[20px] tracking-tight text-ink leading-none">
-            Vivezza
-            <span className="block text-[9.5px] tracking-[0.22em] uppercase text-ink/55 mt-0.5 font-sans not-italic">
+          <div className="leading-none">
+            <div className="text-[17px] font-bold tracking-tight text-ink">Vivezza</div>
+            <div className="text-[9px] font-bold tracking-[0.22em] uppercase text-clinic/70 mt-0.5">
               {lang === 'es' ? 'CENTRO QUIRÚRGICO' : 'SURGICAL CENTER'}
-            </span>
+            </div>
           </div>
         </div>
 
         {/* Desktop nav links */}
-        <nav className="hidden md:flex items-center gap-7 text-[13px] text-ink/70">
-          <a href="#filosofia" className="hover:text-ink transition">{S.navAbout}</a>
-          <a href="#especialidades" className="hover:text-ink transition">{S.navSpecialties}</a>
-          <a href="#medicos" className="hover:text-ink transition">{S.navDoctors}</a>
-          <a href="#contacto" className="hover:text-ink transition">{S.navContact}</a>
+        <nav className="hidden md:flex items-center gap-6 text-[13px] font-medium text-ink/65">
+          <a href="#filosofia" className="hover:text-clinic transition-colors">{S.navAbout}</a>
+          <a href="#especialidades" className="hover:text-clinic transition-colors">{S.navSpecialties}</a>
+          <a href="#medicos" className="hover:text-clinic transition-colors">{S.navDoctors}</a>
+          <a href="#contacto" className="hover:text-clinic transition-colors">{S.navContact}</a>
         </nav>
 
         {/* Language toggle */}
-        <div className="inline-flex items-center rounded-full border border-ink/10 bg-white/60 backdrop-blur p-0.5 text-[11.5px] font-medium shrink-0">
+        <div className="inline-flex items-center rounded-full border border-ink/10 bg-stone p-0.5 text-[11.5px] font-semibold shrink-0">
           <button
             onClick={() => setLang('es')}
-            className={`px-2.5 py-1 rounded-full transition-colors ${lang === 'es' ? 'text-white' : 'text-ink/60'}`}
-            style={lang === 'es' ? { backgroundColor: accent } : {}}
+            className={`px-2.5 py-1 rounded-full transition-colors ${lang === 'es' ? 'text-white bg-clinic' : 'text-ink/55'}`}
           >
             ES
           </button>
           <button
             onClick={() => setLang('en')}
-            className={`px-2.5 py-1 rounded-full transition-colors ${lang === 'en' ? 'text-white' : 'text-ink/60'}`}
-            style={lang === 'en' ? { backgroundColor: accent } : {}}
+            className={`px-2.5 py-1 rounded-full transition-colors ${lang === 'en' ? 'text-white bg-clinic' : 'text-ink/55'}`}
           >
             EN
           </button>
@@ -59,9 +56,9 @@ export default function NavBar({ lang, setLang, S, accent }: Props) {
         {/* CTA */}
         <a
           href="#contacto"
-          className="hidden sm:inline-flex items-center gap-2 rounded-full bg-ink text-paper px-4 py-2 text-[12.5px] shrink-0"
+          className="hidden sm:inline-flex items-center gap-2 rounded-full bg-clinic text-white px-4 py-2 text-[12.5px] font-semibold hover:bg-ink transition-colors shrink-0"
         >
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: accent }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
           {S.navBook}
         </a>
       </div>

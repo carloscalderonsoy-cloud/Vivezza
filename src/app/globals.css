@@ -4,65 +4,53 @@
 
 /* ── Base ─────────────────────────────────────────────────── */
 html, body {
-  background: #FAFAF7;
-  color: #15171A;
+  background: #FFFFFF;
+  color: #0F1623;
 }
 
-body {
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-/* ── Typography ───────────────────────────────────────────── */
-.font-display {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-weight: 400;
-}
-
-/* ── Paper texture ────────────────────────────────────────── */
+/* ── Clinical paper surface ───────────────────────────────── */
 .paper-texture {
-  background-color: #FAFAF7;
+  background-color: #FFFFFF;
   background-image:
-    radial-gradient(at 20% 10%, rgba(212, 184, 150, 0.08) 0, transparent 50%),
-    radial-gradient(at 80% 90%, rgba(180, 160, 140, 0.06) 0, transparent 55%);
+    radial-gradient(at 15% 10%, rgba(27, 95, 190, 0.04) 0, transparent 50%),
+    radial-gradient(at 85% 90%, rgba(27, 95, 190, 0.03) 0, transparent 55%);
 }
 
-/* ── Film grain overlay ───────────────────────────────────── */
+/* ── Section background variant ──────────────────────────── */
+.section-alt {
+  background-color: #F5F8FE;
+}
+
+/* ── Film grain — photos only ─────────────────────────────── */
 .grain::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: .9;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .7;
   mix-blend-mode: multiply;
 }
 
-/* ── Warm placeholder gradients ───────────────────────────── */
+/* ── Warm placeholder (fallback while photos load) ────────── */
 .placeholder-warm {
-  background:
-    radial-gradient(120% 100% at 30% 20%, rgba(255,255,255,0.7) 0%, transparent 55%),
-    radial-gradient(80% 90% at 80% 90%, rgba(120, 100, 80, 0.18) 0%, transparent 60%),
-    linear-gradient(135deg, #E9DFD2 0%, #D6C5AE 60%, #BFA98C 100%);
+  background: linear-gradient(135deg, #E9EFF8 0%, #D0DCF0 60%, #B8CCEC 100%);
 }
 .placeholder-warm-2 {
-  background:
-    radial-gradient(120% 100% at 70% 20%, rgba(255,255,255,0.7) 0%, transparent 50%),
-    radial-gradient(80% 90% at 20% 90%, rgba(120, 100, 80, 0.16) 0%, transparent 60%),
-    linear-gradient(135deg, #F0E6D7 0%, #DCC9AE 65%, #B59C7B 100%);
+  background: linear-gradient(135deg, #EEF2FB 0%, #D8E4F5 65%, #B9CCE8 100%);
 }
 
 /* ── Accent glow card shadow ──────────────────────────────── */
 .accent-glow {
   box-shadow:
     0 1px 2px rgba(0,0,0,0.04),
-    0 30px 60px -20px var(--accent-shadow, rgba(0,0,0,0.15)),
+    0 30px 60px -20px var(--accent-shadow, rgba(27,95,190,0.18)),
     0 0 0 1px rgba(0,0,0,0.03) inset;
 }
 
 /* ── Soft aspirational ring ───────────────────────────────── */
 .ring-soft {
-  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 0 0 1px rgba(0,0,0,.05);
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 0 0 1px rgba(0,0,0,.06);
 }
 
 /* ── Section padding ──────────────────────────────────────── */
@@ -74,7 +62,7 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Showcase fade-up transition ──────────────────────────── */
+/* ── Showcase fade-up ─────────────────────────────────────── */
 @keyframes showcaseFadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -91,10 +79,10 @@ body {
 
 /* ── WhatsApp pulse ───────────────────────────────────────── */
 @keyframes softPulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color, rgba(22,163,74,0.45)); }
-  50%       { box-shadow: 0 0 0 16px rgba(0,0,0,0); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color, rgba(34,195,94,0.45)); }
+  50%       { box-shadow: 0 0 0 14px rgba(0,0,0,0); }
 }
-.pulse { animation: softPulse 2.4s ease-out infinite; }
+.pulse { animation: softPulse 2.6s ease-out infinite; }
 
 /* ── Marquee ──────────────────────────────────────────────── */
 @keyframes marquee {
@@ -102,19 +90,16 @@ body {
   to   { transform: translateX(-33.333%); }
 }
 
-/* ── Hero fade-in ─────────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 /* ── Tnum for stats ───────────────────────────────────────── */
-.num-stat { font-feature-settings: "ss01", "tnum"; }
+.num-stat { font-feature-settings: "tnum"; }
 
 /* ── Focus styles ─────────────────────────────────────────── */
 button:focus { outline: none; }
-button:focus-visible { outline: 2px solid var(--accent, #15171A); outline-offset: 2px; }
+button:focus-visible { outline: 2px solid #1B5FBE; outline-offset: 2px; }
 
-/* ── WhatsApp button hover ────────────────────────────────── */
+/* ── WhatsApp hover ───────────────────────────────────────── */
 .whatsapp-btn:hover { transform: translateY(-1px); }
 .whatsapp-btn { transition: transform .25s ease, box-shadow .25s ease; }
+
+/* ── Smooth image load ────────────────────────────────────── */
+img { transition: opacity 0.3s ease; }

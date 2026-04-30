@@ -14,6 +14,7 @@ export interface Specialty {
   accent: string
   accentSoft: string
   code: string
+  photo: string
   es: SpecialtyContent
   en: SpecialtyContent
 }
@@ -24,6 +25,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#FF7F50',
     accentSoft: '#FCE3D8',
     code: '01',
+    photo: '/photos/plastic-surgery.png',
     es: {
       name: 'Cirugía Plástica',
       tag: 'Estética & Reconstructiva',
@@ -46,6 +48,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#50C878',
     accentSoft: '#DDF1E2',
     code: '02',
+    photo: '/photos/surgery-team.png',
     es: {
       name: 'Bariatría',
       tag: 'Cirugía Metabólica',
@@ -68,6 +71,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#7BD9B5',
     accentSoft: '#E0F5EC',
     code: '03',
+    photo: '/photos/patient-consultation.png',
     es: {
       name: 'Spa / MedSpa',
       tag: 'Bienestar Médico',
@@ -90,6 +94,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#8FC7E0',
     accentSoft: '#E2F0F7',
     code: '04',
+    photo: '/photos/recovery-room.png',
     es: {
       name: 'Cirugía General',
       tag: 'Mínimamente Invasiva',
@@ -112,6 +117,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#4682B4',
     accentSoft: '#DEE9F3',
     code: '05',
+    photo: '/photos/surgery-team.png',
     es: {
       name: 'Traumatología',
       tag: 'Ortopedia de Alto Rendimiento',
@@ -134,6 +140,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#F4A4A4',
     accentSoft: '#FBE4E4',
     code: '06',
+    photo: '/photos/patient-consultation.png',
     es: {
       name: 'Ginecología',
       tag: 'Salud Femenina Integral',
@@ -156,6 +163,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#B8A8E0',
     accentSoft: '#ECE6F7',
     code: '07',
+    photo: '/photos/doctor-portrait.png',
     es: {
       name: 'Oncología',
       tag: 'Tratamiento Multidisciplinario',
@@ -178,6 +186,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#0047AB',
     accentSoft: '#D9E2F2',
     code: '08',
+    photo: '/photos/recovery-room.png',
     es: {
       name: 'Urología',
       tag: 'Cirugía Robótica DaVinci',
@@ -200,6 +209,7 @@ export const SPECIALTIES: Specialty[] = [
     accent: '#C8A57F',
     accentSoft: '#EFE6D8',
     code: '09',
+    photo: '/photos/doctor-portrait.png',
     es: {
       name: 'Otorrino & Maxilofacial',
       tag: 'Cabeza, Cuello & Sueño',
@@ -258,11 +268,11 @@ export const STRINGS: Record<Lang, StringDict> = {
     navDoctors: 'Médicos',
     navContact: 'Contacto',
     navBook: 'Solicitar Evaluación',
-    heroBadge: 'Atención médica boutique · Programa VIP internacional',
-    heroTitleA: 'Reinventa tu',
-    heroTitleB: 'Vitalidad.',
-    heroTitleC: 'Transforma tu vida.',
-    heroSub: 'Un ecosistema médico de vanguardia donde la tecnología quirúrgica más avanzada se encuentra con la calidez de la hospitalidad de lujo. Nueve especialidades, un solo estándar.',
+    heroBadge: 'JCI Acreditado · Programa VIP Internacional',
+    heroTitleA: 'Vivezza:',
+    heroTitleB: 'tu salud',
+    heroTitleC: 'es nuestra prioridad.',
+    heroSub: 'Experiencia médica integral con apoyo humano incondicional. Nueve especialidades, instalaciones de vanguardia y un solo estándar de excelencia.',
     heroCta: 'Solicitar Evaluación Gratuita',
     heroCtaSub: 'Respuesta en menos de 30 min',
     heroSecondary: 'Recorrido virtual',
@@ -270,7 +280,7 @@ export const STRINGS: Record<Lang, StringDict> = {
     statDoctors: 'Médicos titulares',
     statSatisfaction: 'Satisfacción',
     statYears: 'Años de tradición',
-    showcaseEyebrow: 'El ecosistema',
+    showcaseEyebrow: 'Nuestras especialidades',
     showcaseTitle: 'Nueve especialidades.',
     showcaseTitleEm: 'Un mismo estándar de excelencia.',
     showcaseSub: 'Cada especialidad opera con su propio equipo titular, infraestructura y protocolos — orquestados bajo el sello Vivezza.',
@@ -287,11 +297,11 @@ export const STRINGS: Record<Lang, StringDict> = {
     navDoctors: 'Physicians',
     navContact: 'Contact',
     navBook: 'Book Evaluation',
-    heroBadge: 'Boutique medical care · International VIP program',
-    heroTitleA: 'Reimagine your',
-    heroTitleB: 'Vitality.',
-    heroTitleC: 'Transform your life.',
-    heroSub: 'A cutting-edge medical ecosystem where the most advanced surgical technology meets the warmth of true luxury hospitality. Nine specialties. One standard.',
+    heroBadge: 'JCI Accredited · International VIP Program',
+    heroTitleA: 'Vivezza:',
+    heroTitleB: 'your health',
+    heroTitleC: 'is our priority.',
+    heroSub: 'Comprehensive medical experience with unconditional human support. Nine specialties, state-of-the-art facilities, and one standard of excellence.',
     heroCta: 'Request a Free Evaluation',
     heroCtaSub: 'We reply in under 30 min',
     heroSecondary: 'Virtual tour',
@@ -299,7 +309,7 @@ export const STRINGS: Record<Lang, StringDict> = {
     statDoctors: 'Lead physicians',
     statSatisfaction: 'Satisfaction',
     statYears: 'Years of legacy',
-    showcaseEyebrow: 'The ecosystem',
+    showcaseEyebrow: 'Our specialties',
     showcaseTitle: 'Nine specialties.',
     showcaseTitleEm: 'One standard of excellence.',
     showcaseSub: 'Each specialty runs its own lead team, infrastructure, and protocols — orchestrated under the Vivezza seal.',

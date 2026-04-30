@@ -1,27 +1,26 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { Instrument_Serif } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 import './globals.css'
 
-const instrumentSerif = Instrument_Serif({
+const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['400'],
-  style: ['normal', 'italic'],
-  variable: '--font-serif',
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-manrope',
   display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: 'Vivezza Medical Center — Punta del Este, Uruguay',
   description:
-    'Un ecosistema médico de vanguardia donde la tecnología quirúrgica más avanzada se encuentra con la calidez de la hospitalidad de lujo. Nueve especialidades, un solo estándar.',
+    'Centro médico de excelencia con 9 especialidades, instalaciones de vanguardia y atención integral. Punta del Este, Uruguay.',
   keywords: [
     'Vivezza', 'Medical Center', 'Punta del Este', 'Uruguay',
     'cirugía plástica', 'bariatría', 'medspa', 'oncología', 'urología',
+    'JCI acreditado', 'cirugía robótica',
   ],
   openGraph: {
-    title: 'Vivezza Medical Center',
-    description: 'Boutique medical care. Nine specialties. One standard of excellence.',
+    title: 'Vivezza Medical Center — Tu salud, nuestra prioridad',
+    description: '9 especialidades. Instalaciones modernas. Atención integral. Punta del Este, Uruguay.',
     locale: 'es_UY',
     type: 'website',
   },
@@ -29,8 +28,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${instrumentSerif.variable} ${GeistSans.variable}`}>
-      <body className="font-sans">{children}</body>
+    <html lang="es" className={manrope.variable}>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   )
 }

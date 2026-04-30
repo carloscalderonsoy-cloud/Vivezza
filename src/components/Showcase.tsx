@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { SPECIALTIES, type Lang, type StringDict, type Specialty } from '@/data'
 
 /* ── Specialty icons ─────────────────────────────────────── */
@@ -60,19 +60,12 @@ const ICON_PATHS: Record<string, React.ReactNode> = {
 }
 
 function Icon({ id, size = 18 }: { id: string; size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      {ICON_PATHS[id]}
-    </svg>
-  )
+  return <svg width={size} height={size} viewBox="0 0 24 24">{ICON_PATHS[id]}</svg>
 }
 
-/* ── Bento selector (3×3 grid) ───────────────────────────── */
+/* ── Bento selector (3×3 grid) — UNCHANGED ───────────────── */
 function BentoSelector({
-  items,
-  activeIdx,
-  setActiveIdx,
-  lang,
+  items, activeIdx, setActiveIdx, lang,
 }: {
   items: Specialty[]
   activeIdx: number
@@ -88,7 +81,7 @@ function BentoSelector({
             key={sp.id}
             onClick={() => setActiveIdx(i)}
             className={`relative text-left rounded-2xl p-4 border transition-all duration-300 ${
-              active ? '' : 'border-ink/10 bg-white/60 hover:bg-white hover:border-ink/20'
+              active ? '' : 'border-ink/10 bg-white hover:bg-stone hover:border-ink/20'
             }`}
             style={
               active
@@ -111,10 +104,10 @@ function BentoSelector({
               >
                 <Icon id={sp.id} size={16} />
               </div>
-              <span className="font-mono text-[10px] tracking-wider text-ink/40">{sp.code}</span>
+              <span className="font-mono text-[10px] tracking-wider text-ink/35">{sp.code}</span>
             </div>
-            <div className="text-[13.5px] font-medium text-ink leading-tight">{sp[lang].name}</div>
-            <div className="text-[11px] text-ink/55 mt-1 leading-tight">{sp[lang].tag}</div>
+            <div className="text-[13.5px] font-semibold text-ink leading-tight">{sp[lang].name}</div>
+            <div className="text-[11px] text-muted mt-1 leading-tight">{sp[lang].tag}</div>
           </button>
         )
       })}
@@ -123,15 +116,7 @@ function BentoSelector({
 }
 
 /* ── Specialty card ───────────────────────────────────────── */
-function SpecialtyCard({
-  sp,
-  lang,
-  S,
-}: {
-  sp: Specialty
-  lang: Lang
-  S: StringDict
-}) {
+function SpecialtyCard({ sp, lang, S }: { sp: Specialty; lang: Lang; S: StringDict }) {
   const content = sp[lang]
   return (
     <div className="showcase-fade grid lg:grid-cols-5 gap-5">
@@ -146,13 +131,13 @@ function SpecialtyCard({
       >
         <div
           aria-hidden="true"
-          className="absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl opacity-60"
-          style={{ background: `radial-gradient(closest-side, ${sp.accent}88, transparent 70%)` }}
+          className="absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl opacity-50"
+          style={{ background: `radial-gradient(closest-side, ${sp.accent}80, transparent 70%)` }}
         />
 
         <div className="relative flex items-center justify-between mb-7">
           <div
-            className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur border border-ink/10 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em]"
+            className="inline-flex items-center gap-2 rounded-full bg-white/80 backdrop-blur border border-ink/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em]"
             style={{ color: sp.accent }}
           >
             <span className="font-mono">{sp.code}</span>
@@ -167,23 +152,23 @@ function SpecialtyCard({
           </div>
         </div>
 
-        <h3 className="relative font-display text-[clamp(2.2rem,4.4vw,3.6rem)] leading-[0.98] tracking-tight text-ink mb-4">
+        <h3 className="relative text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.05] tracking-[-0.025em] text-ink mb-4">
           {content.name}
         </h3>
 
-        <p className="relative text-[15px] md:text-[16.5px] leading-[1.55] text-ink/75 max-w-[48ch] mb-7">
+        <p className="relative text-[15px] md:text-[16.5px] leading-[1.6] text-ink/75 max-w-[48ch] mb-7">
           {content.desc}
         </p>
 
         <div className="relative mb-7">
-          <div className="text-[10.5px] uppercase tracking-[0.16em] text-ink/55 mb-3">
+          <div className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink/50 mb-3">
             {S.proceduresLabel}
           </div>
           <div className="flex flex-wrap gap-2">
             {content.procedures.map((p) => (
               <span
                 key={p}
-                className="inline-flex items-center rounded-full border bg-white/75 backdrop-blur px-3 py-1.5 text-[12px] text-ink/75"
+                className="inline-flex items-center rounded-full border bg-white/80 backdrop-blur px-3 py-1.5 text-[12px] font-medium text-ink/75"
                 style={{ borderColor: sp.accent + '55' }}
               >
                 {p}
@@ -194,69 +179,65 @@ function SpecialtyCard({
 
         <div className="relative flex flex-wrap items-center gap-3">
           <button
-            className="inline-flex items-center gap-2 rounded-full text-white font-medium px-5 py-3 text-[13.5px] transition-transform hover:-translate-y-0.5"
-            style={{
-              backgroundColor: sp.accent,
-              boxShadow: `0 14px 30px -12px ${sp.accent}cc`,
-            }}
+            className="inline-flex items-center gap-2 rounded-full text-white font-semibold px-5 py-3 text-[13.5px] transition-transform hover:-translate-y-0.5"
+            style={{ backgroundColor: sp.accent, boxShadow: `0 14px 30px -12px ${sp.accent}cc` }}
           >
             {S.bookSpecialty}
             <svg width="14" height="14" viewBox="0 0 14 14">
-              <path
-                d="M3 7h8M7 3l4 4-4 4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <button className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/60 backdrop-blur px-5 py-3 text-[13.5px] text-ink/80 hover:bg-white transition">
+          <button className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-5 py-3 text-[13.5px] font-medium text-ink/80 hover:bg-stone transition">
             {S.learnMore}
           </button>
         </div>
       </div>
 
-      {/* RIGHT — doctor */}
+      {/* RIGHT — doctor photo + testimonial */}
       <div className="lg:col-span-2 flex flex-col gap-4">
-        <div className="placeholder-warm-2 relative overflow-hidden rounded-3xl aspect-[4/5] ring-soft grain">
+        <div className="relative overflow-hidden rounded-3xl aspect-[4/5] ring-soft bg-stone grain">
+          <Image
+            src={sp.photo}
+            alt={content.doctor}
+            fill
+            className="object-cover"
+          />
           <div
             aria-hidden="true"
             className="absolute inset-0"
-            style={{ background: `linear-gradient(180deg, transparent 45%, ${sp.accent}66 100%)` }}
+            style={{ background: 'linear-gradient(180deg, transparent 45%, rgba(10,16,28,0.6) 100%)' }}
           />
-          <div className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[10.5px] uppercase tracking-[0.14em] text-ink/75 border border-white/60">
+          <div className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/92 backdrop-blur px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink/80 border border-white/60">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             {S.titularLabel}
           </div>
           <div className="absolute bottom-5 left-5 right-5 text-white">
             <div
-              className="font-display text-[1.6rem] leading-tight"
-              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.3)' }}
+              className="text-[1.35rem] font-bold leading-tight tracking-[-0.01em]"
+              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}
             >
               {content.doctor}
             </div>
-            <div className="text-[11px] uppercase tracking-[0.14em] mt-1 opacity-90">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] mt-1.5 opacity-90">
               {content.doctorRole}
             </div>
           </div>
         </div>
 
-        {/* Testimonial card */}
-        <div className="rounded-3xl border border-ink/10 bg-white/70 backdrop-blur p-5">
+        {/* Testimonial */}
+        <div className="rounded-3xl border border-ink/8 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-1.5 mb-3">
             {[1, 2, 3, 4, 5].map((i) => (
               <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill={sp.accent}>
                 <path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7l3-7Z" />
               </svg>
             ))}
-            <span className="ml-1 text-[11.5px] text-ink/65 num-stat">4.98 · 1.2k pacientes</span>
+            <span className="ml-1 text-[11.5px] font-semibold text-muted num-stat">4.98 · 1.2k pacientes</span>
           </div>
-          <p className="text-[12.5px] leading-[1.55] text-ink/65 italic">
+          <p className="text-[12.5px] leading-[1.6] text-muted">
             {lang === 'es'
-              ? '"Cada paciente recibe una experiencia diseñada como si fuera el único."'
-              : '"Each patient receives an experience designed as if they were the only one."'}
+              ? 'Cada paciente recibe una experiencia diseñada como si fuera el único.'
+              : 'Each patient receives an experience designed as if they were the only one.'}
           </p>
         </div>
       </div>
@@ -278,20 +259,20 @@ export default function Showcase({ lang, activeIdx, setActiveIdx, S }: ShowcaseP
   return (
     <section id="especialidades" className="section-pad py-20 lg:py-28 relative">
       {/* Section header */}
-      <div className="flex flex-col gap-6 mb-10 lg:mb-14 max-w-3xl">
-        <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink/55">
-          <span className="h-px w-6 bg-ink/30" />
+      <div className="flex flex-col gap-5 mb-10 lg:mb-14 max-w-3xl">
+        <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-clinic/70">
+          <span className="h-px w-6 bg-clinic/40" />
           {S.showcaseEyebrow}
         </div>
-        <h2 className="font-display text-[clamp(2.2rem,5vw,4.4rem)] leading-[0.98] tracking-tight text-ink">
+        <h2 className="text-[clamp(2rem,4.4vw,3.6rem)] font-bold leading-[1.05] tracking-[-0.025em] text-ink">
           {S.showcaseTitle}
           <br />
-          <span className="italic text-ink/65">{S.showcaseTitleEm}</span>
+          <span className="text-muted font-semibold">{S.showcaseTitleEm}</span>
         </h2>
-        <p className="text-[15px] leading-[1.6] text-ink/65 max-w-[58ch]">{S.showcaseSub}</p>
+        <p className="text-[15px] leading-[1.65] text-muted max-w-[58ch]">{S.showcaseSub}</p>
       </div>
 
-      {/* Bento: side-by-side (selector left, card right) */}
+      {/* Bento side-by-side layout */}
       <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         <div className="lg:col-span-4">
           <BentoSelector
