@@ -31,11 +31,11 @@ export default function Footer({ lang, accent }: Props) {
             {isEs ? 'Visítanos' : 'Visit us'}
           </div>
           <div className="text-[13.5px] text-ink/80 leading-[1.7]">
-            Av. del Mar 4521
+            Erasmo Castellanos q.1874-102
             <br />
-            Punta del Este · Uruguay
+            Zona urbana Río · Tijuana
             <br />
-            +598 99 000 000
+            664 974 9264
           </div>
         </div>
 
@@ -60,7 +60,7 @@ export default function Footer({ lang, accent }: Props) {
       {/* Bottom bar */}
       <div className="flex items-center justify-between text-[11px] text-ink/45 pt-6 border-t border-ink/8">
         <div>
-          © Vivezza Medical Center 2026 —{' '}
+          © Vivezza Centro Quirúrgico 2026 —{' '}
           {isEs ? 'Todos los derechos reservados' : 'All rights reserved'}
         </div>
         <div className="font-mono tracking-wider">vivezza.com</div>
