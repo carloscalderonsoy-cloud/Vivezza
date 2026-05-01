@@ -1,7 +1,12 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { SPECIALTIES, type Lang, type StringDict, type Specialty } from '@/data'
+
+const LANDING_PAGES: Record<string, string> = {
+  'cirugia-plastica': '/especialidades/cirugia-plastica',
+}
 
 /* ── Specialty icons ─────────────────────────────────────── */
 const ICON_PATHS: Record<string, React.ReactNode> = {
@@ -178,15 +183,29 @@ function SpecialtyCard({ sp, lang, S }: { sp: Specialty; lang: Lang; S: StringDi
         </div>
 
         <div className="relative flex flex-wrap items-center gap-3">
-          <button
-            className="inline-flex items-center gap-2 rounded-full text-white font-semibold px-5 py-3 text-[13.5px] transition-transform hover:-translate-y-0.5"
-            style={{ backgroundColor: sp.accent, boxShadow: `0 14px 30px -12px ${sp.accent}cc` }}
-          >
-            {S.bookSpecialty}
-            <svg width="14" height="14" viewBox="0 0 14 14">
-              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          {LANDING_PAGES[sp.id] ? (
+            <Link
+              href={LANDING_PAGES[sp.id]}
+              className="inline-flex items-center gap-2 rounded-full text-white font-semibold px-5 py-3 text-[13.5px] transition-transform hover:-translate-y-0.5"
+              style={{ backgroundColor: sp.accent, boxShadow: `0 14px 30px -12px ${sp.accent}cc` }}
+            >
+              {S.bookSpecialty}
+              <svg width="14" height="14" viewBox="0 0 14 14">
+                <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          ) : (
+            <a
+              href="#contacto"
+              className="inline-flex items-center gap-2 rounded-full text-white font-semibold px-5 py-3 text-[13.5px] transition-transform hover:-translate-y-0.5"
+              style={{ backgroundColor: sp.accent, boxShadow: `0 14px 30px -12px ${sp.accent}cc` }}
+            >
+              {S.bookSpecialty}
+              <svg width="14" height="14" viewBox="0 0 14 14">
+                <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          )}
           <button className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-5 py-3 text-[13.5px] font-medium text-ink/80 hover:bg-stone transition">
             {S.learnMore}
           </button>
