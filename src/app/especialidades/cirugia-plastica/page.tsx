@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -12,26 +12,18 @@ const CLINIC = '#1B5FBE'
 
 type Lang = 'es' | 'en'
 
-/* ─── All strings ────────────────────────────────────────── */
+/* ─── Strings ────────────────────────────────────────────── */
 const S = {
   es: {
-    /* nav */
-    navPre: 'Pre-consulta',
-    navWA: 'WhatsApp',
-    /* breadcrumb */
+    navPre: 'Pre-consulta', navWA: 'WhatsApp',
     breadcrumb: 'Cirugía Plástica',
-    /* hero */
     heroBadge: 'CMCPER Certificado #2600 · Vivezza',
     heroAvailable: 'Disponible hoy',
-    heroH1a: 'Armonía, proporción',
-    heroH1b: 'y resultados',
-    heroH1c: 'naturales.',
+    heroH1a: 'Armonía, proporción', heroH1b: 'y resultados', heroH1c: 'naturales.',
     heroP: 'El Dr. Zuriel Michel no sigue tendencias virales. Diseña cada procedimiento alrededor de tu anatomía, tu proporción y tus metas — con acompañamiento one-on-one desde la valoración hasta la recuperación completa.',
     heroChips: ['CMCPER Certificado #2600', 'Body Contour Internacional', 'Quirófano JCI Acreditado', 'Acompañamiento 1 a 1'],
     heroCta: 'Agenda tu valoración gratuita',
-    heroPhone: '664 974 9264',
-    certLabel: 'Certificación',
-    certSub: 'CMCPER',
+    certLabel: 'Certificación', certSub: 'CMCPER',
     doctorName: 'Dr. Zuriel Michel Barrera',
     doctorRole: 'Cirujano Plástico, Estético y Reconstructivo',
     doctorCert: 'Cert. CMCPER #2600',
@@ -42,7 +34,7 @@ const S = {
       { label: 'JCI', sub: 'Joint Commission International' },
       { label: 'ISO 9001', sub: 'Gestión de Calidad' },
     ],
-    /* when section */
+    /* when */
     whenEyebrow: 'Señales de consulta',
     whenTitle: '¿Cuándo es el momento',
     whenTitleEm: 'de verte con el Dr. Michel?',
@@ -56,32 +48,49 @@ const S = {
       { emoji: '💊', title: 'Asimetría o corrección reconstructiva', desc: 'El Dr. Michel atiende diferencias congénitas, post-accidente o revisiones de cirugías previas.' },
     ],
     whenCta: 'Me identifico — quiero consultar',
-    /* procedures */
-    procsEyebrow: 'Procedimientos especializados',
-    procsTitle: 'Tres pilares de especialidad',
-    procsSub: 'Contorno corporal, cirugía mamaria y armonización facial avanzada — cada área con protocolos y técnicas especializadas.',
-    procsTags: ['Todos', 'Contorno Corporal', 'Mamaria', 'Facial'],
-    procs: [
-      { name: 'Liposucción HD / Lipo Vaser', tag: 'Contorno Corporal', desc: 'Definición muscular de alta definición mediante ultrasonido. Abdomen, flancos, espalda y muslos con precisión milimétrica.' },
-      { name: 'Lipoescultura', tag: 'Contorno Corporal', desc: 'Remodelado integral de la silueta redistribuyendo grasa para lograr proporciones naturales y armónicas.' },
-      { name: 'Abdominoplastia (Tummy Tuck)', tag: 'Contorno Corporal', desc: 'Extirpación de piel sobrante y reparación muscular del abdomen. Ideal post-maternidad o tras pérdida de peso significativa.' },
-      { name: 'Mini Abdominoplastia', tag: 'Contorno Corporal', desc: 'Versión de menor alcance para exceso localizado bajo el ombligo. Cicatriz discreta y recuperación más rápida.' },
-      { name: 'Mommy Makeover', tag: 'Contorno Corporal', desc: 'Protocolo combinado: abdominoplastia, mamoplastia y lipo en una sola intervención. Recuperación única, resultados integrales.' },
-      { name: 'BBL (Brazilian Butt Lift)', tag: 'Contorno Corporal', desc: 'Transferencia de grasa propia con técnica segura para proyección y forma en glúteos. Sin implantes, resultado natural.' },
-      { name: 'Aumento de busto', tag: 'Mamaria', desc: 'Implantes de silicón de alta cohesividad. Enfoque en proporción y armonía, no solo en tamaño.' },
-      { name: 'Reducción mamaria', tag: 'Mamaria', desc: 'Alivia dolor de espalda, mejora postura y redefine la silueta cuando el volumen genera molestias.' },
-      { name: 'Mastopexia (levantamiento)', tag: 'Mamaria', desc: 'Reposiciona el busto caído sin cambiar necesariamente el volumen. Puede combinarse con aumento.' },
-      { name: 'Lip Lift', tag: 'Facial', desc: 'Eleva y define el labio superior para rejuvenecer el tercio inferior del rostro. Resultado permanente y natural.' },
-      { name: 'Lipopapada (Chin Lipo)', tag: 'Facial', desc: 'Elimina la grasa submentoniana para definir el contorno del cuello y la mandíbula. Mínimamente invasivo.' },
-      { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinición del ángulo y la línea mandibular para un contorno facial más simétrico y definido.' },
-      { name: 'Mini Lifting Facial', tag: 'Facial', desc: 'Reposiciona tejidos caídos de mejillas y cuello con incisiones mínimas. Rejuvenece sin cambiar tu identidad.' },
-      { name: 'Blefaroplastia', tag: 'Facial', desc: 'Corrección de párpados superiores e inferiores caídos o con exceso de piel. Alta precisión, procedimiento ambulatorio.' },
-      { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Radiofrecuencia para tensar la piel sin cirugía abierta. Ideales como complemento o alternativa al lifting.' },
+    /* procedures (simplified 3 trending) */
+    procsEyebrow: 'Procedimientos destacados',
+    procsTitle: 'Los más solicitados.',
+    procsSub: 'Tres procedimientos de alto impacto, diseñados para resultados naturales y recuperación optimizada.',
+    procsExploreCta: 'Ver todas las especialidades',
+    procsFeatured: [
+      {
+        name: 'Mommy Makeover',
+        tag: 'Transformación integral',
+        icon: '🤱',
+        desc: 'Abdominoplastia + mamoplastia + lipo en una sola cirugía. Una recuperación, resultados completos. El protocolo más solicitado post-maternidad.',
+        bullets: ['Abdominoplastia incluida', 'Mamoplastia a tu medida', 'Lipo de zonas tratadas', 'Recuperación única'],
+      },
+      {
+        name: 'Lipo HD + BBL',
+        tag: 'Contorno corporal',
+        icon: '💪',
+        desc: 'Liposucción de alta definición con transferencia de grasa propia a glúteos. Definición muscular y proyección natural — sin implantes.',
+        bullets: ['Lipo Vaser HD 4K', 'BBL con técnica segura', 'Sin implantes', 'Resultado permanente'],
+      },
+      {
+        name: 'Abdominoplastia',
+        tag: 'Abdomen plano',
+        icon: '⚖️',
+        desc: 'Extirpación de piel sobrante y reparación del músculo abdominal. Versión completa o mini según tu caso. Cicatriz discreta, resultado definitivo.',
+        bullets: ['Tummy Tuck completo', 'Mini Abdominoplastia', 'Reparación muscular', 'Cicatriz baja y discreta'],
+      },
     ],
+    /* before/after */
+    beforeAfterEyebrow: 'Resultados',
+    beforeAfterTitle: 'Antes y después.',
+    beforeAfterTitleEm: 'Desliza para comparar.',
+    beforeAfterSub: 'Casos reales del Dr. Michel. Los resultados fotográficos completos se muestran en consulta privada, con pleno respeto a la privacidad de cada paciente.',
+    beforeAfterDragHint: '← Desliza para comparar →',
+    beforeAfterNote: '🔒 Imágenes de referencia ilustrativas. El archivo completo de antes y después se presenta en consulta, con autorización firmada de cada paciente.',
+    beforeAfterCases: [
+      { label: 'Caso 1', proc: 'Lipo HD + BBL' },
+      { label: 'Caso 2', proc: 'Mommy Makeover' },
+    ],
+    beforeLabel: 'Antes', afterLabel: 'Después',
     /* why */
     whyEyebrow: 'La filosofía del Dr. Michel',
-    whyTitle: 'Ética médica y',
-    whyTitleEm: 'precisión artística.',
+    whyTitle: 'Ética médica y', whyTitleEm: 'precisión artística.',
     whySub: 'Honestidad clínica, proporciones estudiadas y seguimiento real. No todos los procedimientos son para todos los pacientes — y el Dr. Michel te lo dice con claridad.',
     whyDiffs: [
       { icon: '🎯', title: 'Resultados naturales, no tendencias virales', desc: 'El Dr. Michel rechaza las modas estéticas de redes sociales que no son médicamente adecuadas. La cirugía mejora versiones, no transforma identidades.' },
@@ -90,45 +99,38 @@ const S = {
       { icon: '🌎', title: 'Formación internacional continua', desc: 'Especialización en Body Contour Training en México y Colombia. Asistente activo a congresos AMCPER para mantener técnicas al día.' },
     ],
     whyStats: [
-      { v: '#2600', l: 'Cert. CMCPER' },
-      { v: '3', l: 'Sedes de atención' },
-      { v: '98%', l: 'Satisfacción reportada' },
-      { v: '24/7', l: 'Soporte post-op' },
+      { v: '#2600', l: 'Cert. CMCPER' }, { v: '3', l: 'Sedes de atención' },
+      { v: '98%', l: 'Satisfacción reportada' }, { v: '24/7', l: 'Soporte post-op' },
     ],
     /* testimonials */
     testimonialsEyebrow: 'Pacientes reales',
-    testimonialsTitle: 'Lo que dicen quienes',
-    testimonialsTitleEm: 'ya confían en el Dr. Michel.',
+    testimonialsTitle: 'Lo que dicen quienes', testimonialsTitleEm: 'ya confían en el Dr. Michel.',
     testimonials: [
       { quote: 'Como enfermera, sé reconocer la atención médica de calidad cuando la veo. El equipo fue increíblemente profesional. El Dr. Zuriel tiene un trato tranquilo y tranquilizador en todo momento.', name: 'Nathaly T.', proc: 'Lipopapada, FaceTite y Endolift' },
       { quote: 'Excelente cirujano. Muy atento. Explica las cosas bien. Escucha tus preocupaciones y deseos. Gran cuidado postoperatorio.', name: 'Pam C.', proc: 'Aumento de busto' },
       { quote: 'Lo que más valoro es su honestidad. Me explicó qué procedimientos eran adecuados para mí y cuáles no. Eso genera una confianza enorme antes de entrar al quirófano.', name: 'Paciente verificada', proc: 'Mommy Makeover' },
     ],
     /* form */
-    formEyebrow: 'Valoración gratuita',
-    formTitle: 'Cuéntanos sobre ti',
+    formTriggerBtn: 'Iniciar mi pre-consulta',
+    formTriggerSub: 'Gratis · 3 minutos · 100% confidencial',
+    formEyebrow: 'Valoración gratuita', formTitle: 'Cuéntanos sobre ti',
     formSub: 'Esta información permite que el Dr. Michel llegue a tu primera consulta ya preparado para tu caso. 100% confidencial.',
     formQ: [
-      'Nombre completo *',
-      'Edad *',
-      '¿Qué procedimiento te interesa? *',
-      '¿Cuántos partos has tenido y de qué tipo?',
-      'Peso actual y talla',
-      '¿Has tenido cirugías estéticas previas?',
-      '¿Tienes alguna enfermedad crónica?',
-      '¿Fumas?',
-      '¿Estás en período de lactancia o embarazo?',
+      'Nombre completo *', 'Edad *', '¿Qué procedimiento te interesa? *',
+      '¿Cuántos partos has tenido y de qué tipo?', 'Peso actual y talla',
+      '¿Has tenido cirugías estéticas previas?', '¿Tienes alguna enfermedad crónica?',
+      '¿Fumas?', '¿Estás en período de lactancia o embarazo?',
       '¿Tienes fotos de referencia del resultado que buscas?',
       '¿Tienes alguien que te acompañe durante la recuperación?',
       '¿Vienes desde fuera de Tijuana o del extranjero?',
-      '¿Necesitas hospedaje o transporte?',
-      'Fecha aproximada de interés',
+      '¿Necesitas hospedaje o transporte?', 'Fecha aproximada de interés',
     ],
     formQ7hint: '(diabetes, hipertensión, problemas de coagulación u otra)',
     formQ7detail: '¿Cuál? ¿Está controlada?',
     formQ8detail: '¿Cuántos cigarros al día aproximadamente?',
     formProcs: ['Mommy Makeover', 'BBL', 'Lipo HD', 'Aumento de busto', 'Abdominoplastia', 'Facial', 'Otro'],
     formPrevOps: ['No', 'Sí, una', 'Sí, varias'],
+    formYesNo: ['No', 'Sí'],
     formSmoke: ['No', 'Ocasionalmente', 'Sí, regularmente'],
     formLactancia: ['No', 'Embarazada', 'En lactancia'],
     formPhotos: ['Sí, las tengo', 'Aún no', 'Las buscaré antes'],
@@ -140,13 +142,10 @@ const S = {
     formSuccess: '¡Tu valoración fue enviada!',
     formSuccessSub: 'Se abrió WhatsApp con tu información. El Dr. Michel o su equipo te responden en menos de 30 minutos en horario de atención.',
     formEdit: 'Editar respuestas',
-    formPesoPlaceholder: 'Peso (kg)',
-    formTallaPlaceholder: 'Talla (cm)',
-    /* WA message label */
+    formPesoPlaceholder: 'Peso (kg)', formTallaPlaceholder: 'Talla (cm)',
     waHeader: '*Pre-consulta Cirugía Plástica — Vivezza*\n*Dr. Zuriel Michel Barrera #CMCPER2600*',
-    /* final cta */
-    finalEyebrow: 'Contáctanos hoy',
-    finalTitle: 'Hablemos hoy mismo.',
+    /* final */
+    finalEyebrow: 'Contáctanos hoy', finalTitle: 'Hablemos hoy mismo.',
     sedesTijuanaBadge: 'Turismo Médico · All-Inclusive',
     sedesTijuanaNote: 'Paquetes all-inclusive para pacientes de USA y Canadá. Coordinación desde el cruce fronterizo hasta la recuperación.',
     sedes: [
@@ -157,20 +156,15 @@ const S = {
     mapTitle: 'Vivezza Tijuana',
   },
   en: {
-    navPre: 'Pre-consultation',
-    navWA: 'WhatsApp',
+    navPre: 'Pre-consultation', navWA: 'WhatsApp',
     breadcrumb: 'Plastic Surgery',
     heroBadge: 'CMCPER Certified #2600 · Vivezza',
     heroAvailable: 'Available today',
-    heroH1a: 'Harmony, proportion',
-    heroH1b: 'and natural',
-    heroH1c: 'results.',
-    heroP: 'Dr. Zuriel Michel doesn\'t follow viral trends. He designs every procedure around your anatomy, your proportions and your goals — with one-on-one care from the first consultation through full recovery.',
+    heroH1a: 'Harmony, proportion', heroH1b: 'and natural', heroH1c: 'results.',
+    heroP: "Dr. Zuriel Michel doesn't follow viral trends. He designs every procedure around your anatomy, your proportions and your goals — with one-on-one care from the first consultation through full recovery.",
     heroChips: ['CMCPER Certified #2600', 'International Body Contour', 'JCI Accredited OR', 'One-on-One Care'],
     heroCta: 'Schedule your free evaluation',
-    heroPhone: '664 974 9264',
-    certLabel: 'Certification',
-    certSub: 'CMCPER',
+    certLabel: 'Certification', certSub: 'CMCPER',
     doctorName: 'Dr. Zuriel Michel Barrera',
     doctorRole: 'Plastic, Aesthetic & Reconstructive Surgeon',
     doctorCert: 'Cert. CMCPER #2600',
@@ -184,101 +178,108 @@ const S = {
     whenEyebrow: 'Consultation signals',
     whenTitle: 'When is the right time',
     whenTitleEm: 'to see Dr. Michel?',
-    whenSub: 'You don\'t need to wait for the "perfect moment." If any of these situations describe you, a free evaluation can give you clarity and a real plan.',
+    whenSub: "You don't need to wait for the \"perfect moment.\" If any of these situations describe you, a free evaluation can give you clarity and a real plan.",
     whenSituations: [
-      { emoji: '🤱', title: 'After motherhood', desc: 'Your body changed through pregnancy and exercise alone isn\'t enough to restore your figure.' },
-      { emoji: '⚖️', title: 'Weight loss left excess skin', desc: 'Surgery contours what diet and exercise can\'t remove.' },
-      { emoji: '👃', title: 'Your nose doesn\'t harmonize with your face', desc: 'It\'s not about trends. It\'s about proportion and feeling at peace with your reflection.' },
+      { emoji: '🤱', title: 'After motherhood', desc: "Your body changed through pregnancy and exercise alone isn't enough to restore your figure." },
+      { emoji: '⚖️', title: 'Weight loss left excess skin', desc: "Surgery contours what diet and exercise can't remove." },
+      { emoji: '👃', title: "Your nose doesn't harmonize with your face", desc: "It's not about trends. It's about proportion and feeling at peace with your reflection." },
       { emoji: '💪', title: 'You want real definition, not just weight loss', desc: 'HD Lipo and BBL sculpt what training alone cannot achieve.' },
       { emoji: '🪞', title: 'Time is changing your face', desc: 'Drooping eyelids, ptosis, or loss of contour that affects your confidence.' },
       { emoji: '💊', title: 'Asymmetry or reconstructive correction', desc: 'Dr. Michel treats congenital differences, post-accident cases, and prior surgery revisions.' },
     ],
     whenCta: 'This describes me — I want to consult',
-    procsEyebrow: 'Specialized procedures',
-    procsTitle: 'Three pillars of expertise',
-    procsSub: 'Body contouring, breast surgery and advanced facial contouring — each area with specialized protocols and techniques.',
-    procsTags: ['All', 'Body Contour', 'Breast', 'Facial'],
-    procs: [
-      { name: 'HD Lipo / Vaser Lipo', tag: 'Body Contour', desc: 'High-definition muscle definition using ultrasound. Abdomen, flanks, back and thighs with millimetric precision.' },
-      { name: 'Liposculpture', tag: 'Body Contour', desc: 'Full silhouette remodeling by redistributing fat to achieve natural, harmonious proportions.' },
-      { name: 'Abdominoplasty (Tummy Tuck)', tag: 'Body Contour', desc: 'Removal of excess skin and abdominal muscle repair. Ideal post-maternity or after significant weight loss.' },
-      { name: 'Mini Abdominoplasty', tag: 'Body Contour', desc: 'Smaller-scope version for localized excess below the navel. Discreet scar and faster recovery.' },
-      { name: 'Mommy Makeover', tag: 'Body Contour', desc: 'Combined protocol: abdominoplasty, breast surgery and lipo in a single session. One recovery, comprehensive results.' },
-      { name: 'BBL (Brazilian Butt Lift)', tag: 'Body Contour', desc: 'Own-fat transfer with safe technique for gluteal projection and shape. No implants, natural result.' },
-      { name: 'Breast augmentation', tag: 'Breast', desc: 'High-cohesion silicone implants. Focus on proportion and harmony, not just size.' },
-      { name: 'Breast reduction', tag: 'Breast', desc: 'Relieves back pain, improves posture and redefines the silhouette when volume causes physical discomfort.' },
-      { name: 'Mastopexy (breast lift)', tag: 'Breast', desc: 'Repositions sagging breasts without necessarily changing volume. Can be combined with augmentation.' },
-      { name: 'Lip Lift', tag: 'Facial', desc: 'Lifts and defines the upper lip to rejuvenate the lower third of the face. Permanent and natural result.' },
-      { name: 'Chin Lipo (Lipopapada)', tag: 'Facial', desc: 'Removes submental fat to define the neck and jawline contour. Minimally invasive.' },
-      { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinition of the jaw angle and mandibular line for a more symmetrical, defined facial contour.' },
-      { name: 'Mini Facelift', tag: 'Facial', desc: 'Repositions sagging cheek and neck tissue with minimal incisions. Rejuvenates without changing your identity.' },
-      { name: 'Blepharoplasty', tag: 'Facial', desc: 'Correction of drooping upper and lower eyelids or excess skin. High precision, outpatient procedure.' },
-      { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Radiofrequency to tighten skin without open surgery. Ideal as a complement or alternative to facelift.' },
+    procsEyebrow: 'Featured procedures',
+    procsTitle: 'The most requested.',
+    procsSub: 'Three high-impact procedures designed for natural results and optimized recovery.',
+    procsExploreCta: 'View all specialties',
+    procsFeatured: [
+      {
+        name: 'Mommy Makeover',
+        tag: 'Full transformation',
+        icon: '🤱',
+        desc: 'Abdominoplasty + breast surgery + lipo in a single surgery. One recovery, complete results. The most requested post-maternity protocol.',
+        bullets: ['Abdominoplasty included', 'Breast surgery tailored to you', 'Lipo of treated areas', 'Single recovery'],
+      },
+      {
+        name: 'HD Lipo + BBL',
+        tag: 'Body contouring',
+        icon: '💪',
+        desc: 'High-definition liposuction with own-fat transfer to the buttocks. Muscle definition and natural projection — no implants.',
+        bullets: ['4K Vaser HD Lipo', 'Safe-technique BBL', 'No implants', 'Permanent result'],
+      },
+      {
+        name: 'Abdominoplasty',
+        tag: 'Flat abdomen',
+        icon: '⚖️',
+        desc: 'Removal of excess skin and abdominal muscle repair. Full or mini version depending on your case. Discreet scar, definitive result.',
+        bullets: ['Full Tummy Tuck', 'Mini Abdominoplasty', 'Muscle repair', 'Low, discreet scar'],
+      },
     ],
-    whyEyebrow: 'Dr. Michel\'s philosophy',
-    whyTitle: 'Medical ethics and',
-    whyTitleEm: 'artistic precision.',
-    whySub: 'Clinical honesty, studied proportions and real follow-up. Not every procedure is right for every patient — and Dr. Michel will tell you so clearly.',
+    beforeAfterEyebrow: 'Results',
+    beforeAfterTitle: 'Before and after.',
+    beforeAfterTitleEm: 'Slide to compare.',
+    beforeAfterSub: "Real cases from Dr. Michel. Full photographic results are shown during private consultation, with full respect for each patient's privacy.",
+    beforeAfterDragHint: '← Slide to compare →',
+    beforeAfterNote: '🔒 Illustrative reference images. The full before & after archive is presented in consultation, with each patient\'s signed authorization.',
+    beforeAfterCases: [
+      { label: 'Case 1', proc: 'HD Lipo + BBL' },
+      { label: 'Case 2', proc: 'Mommy Makeover' },
+    ],
+    beforeLabel: 'Before', afterLabel: 'After',
+    whyEyebrow: "Dr. Michel's philosophy",
+    whyTitle: 'Medical ethics and', whyTitleEm: 'artistic precision.',
+    whySub: "Clinical honesty, studied proportions and real follow-up. Not every procedure is right for every patient — and Dr. Michel will tell you so clearly.",
     whyDiffs: [
-      { icon: '🎯', title: 'Natural results, not viral trends', desc: 'Dr. Michel rejects social-media aesthetic trends that aren\'t medically appropriate. Surgery improves versions, it doesn\'t transform identities.' },
+      { icon: '🎯', title: 'Natural results, not viral trends', desc: "Dr. Michel rejects social-media aesthetic trends that aren't medically appropriate. Surgery improves versions, it doesn't transform identities." },
       { icon: '🏥', title: 'Hospital OR, not an outpatient clinic', desc: 'Every procedure is performed in certified facilities with full hospital support equipment available at all times.' },
-      { icon: '🤝', title: 'One-on-one care', desc: 'Dr. Michel doesn\'t leave his patients alone after surgery. He designs an optimal, peaceful recovery with you from day one.' },
+      { icon: '🤝', title: 'One-on-one care', desc: "Dr. Michel doesn't leave his patients alone after surgery. He designs an optimal, peaceful recovery with you from day one." },
       { icon: '🌎', title: 'Continuous international training', desc: 'Specialization in Body Contour Training in Mexico and Colombia. Active attendee at AMCPER congresses to keep techniques current.' },
     ],
     whyStats: [
-      { v: '#2600', l: 'CMCPER Cert.' },
-      { v: '3', l: 'Practice locations' },
-      { v: '98%', l: 'Reported satisfaction' },
-      { v: '24/7', l: 'Post-op support' },
+      { v: '#2600', l: 'CMCPER Cert.' }, { v: '3', l: 'Practice locations' },
+      { v: '98%', l: 'Reported satisfaction' }, { v: '24/7', l: 'Post-op support' },
     ],
     testimonialsEyebrow: 'Real patients',
-    testimonialsTitle: 'What those who already',
-    testimonialsTitleEm: 'trust Dr. Michel say.',
+    testimonialsTitle: 'What those who already', testimonialsTitleEm: 'trust Dr. Michel say.',
     testimonials: [
       { quote: 'As a nurse, I know how to recognize quality medical care when I see it. The team was incredibly professional. Dr. Zuriel has a calm and reassuring manner at all times.', name: 'Nathaly T.', proc: 'Chin Lipo, FaceTite & Endolift' },
       { quote: 'Excellent surgeon. Very attentive. He explains things well. He listens to your concerns and wishes. Great post-operative care.', name: 'Pam C.', proc: 'Breast augmentation' },
-      { quote: 'What I value most is his honesty. He explained which procedures were right for me and which weren\'t. That builds enormous trust before entering the operating room.', name: 'Verified patient', proc: 'Mommy Makeover' },
+      { quote: "What I value most is his honesty. He explained which procedures were right for me and which weren't. That builds enormous trust before entering the operating room.", name: 'Verified patient', proc: 'Mommy Makeover' },
     ],
-    formEyebrow: 'Free evaluation',
-    formTitle: 'Tell us about yourself',
+    formTriggerBtn: 'Start my pre-consultation',
+    formTriggerSub: 'Free · 3 minutes · 100% confidential',
+    formEyebrow: 'Free evaluation', formTitle: 'Tell us about yourself',
     formSub: 'This information allows Dr. Michel to arrive at your first consultation already prepared for your case. 100% confidential.',
     formQ: [
-      'Full name *',
-      'Age *',
-      'Which procedure are you interested in? *',
-      'How many deliveries have you had and what type?',
-      'Current weight and height',
-      'Have you had previous cosmetic surgeries?',
-      'Do you have any chronic illness?',
-      'Do you smoke?',
-      'Are you breastfeeding or pregnant?',
-      'Do you have reference photos of the result you\'re looking for?',
+      'Full name *', 'Age *', 'Which procedure are you interested in? *',
+      'How many deliveries have you had and what type?', 'Current weight and height',
+      'Have you had previous cosmetic surgeries?', 'Do you have any chronic illness?',
+      'Do you smoke?', 'Are you breastfeeding or pregnant?',
+      "Do you have reference photos of the result you're looking for?",
       'Do you have someone to accompany you during recovery?',
       'Are you traveling from outside Tijuana or from abroad?',
-      'Do you need accommodation or transportation?',
-      'Approximate date of interest',
+      'Do you need accommodation or transportation?', 'Approximate date of interest',
     ],
     formQ7hint: '(diabetes, hypertension, clotting issues or other)',
     formQ7detail: 'Which one? Is it controlled?',
     formQ8detail: 'Approximately how many cigarettes per day?',
     formProcs: ['Mommy Makeover', 'BBL', 'HD Lipo', 'Breast augmentation', 'Abdominoplasty', 'Facial', 'Other'],
     formPrevOps: ['No', 'Yes, one', 'Yes, several'],
+    formYesNo: ['No', 'Yes'],
     formSmoke: ['No', 'Occasionally', 'Yes, regularly'],
     formLactancia: ['No', 'Pregnant', 'Breastfeeding'],
-    formPhotos: ['Yes, I have them', 'Not yet', 'I\'ll find them before'],
+    formPhotos: ["Yes, I have them", "Not yet", "I'll find them before"],
     formCompanion: ['Yes', 'No, I need support', 'Not sure yet'],
-    formOrigin: ['I\'m from Tijuana', 'Coming from another state', 'Coming from USA / abroad'],
-    formHospedaje: ['Accommodation', 'Airport transport', 'Clinic transfer', 'I don\'t need it'],
+    formOrigin: ["I'm from Tijuana", 'Coming from another state', 'Coming from USA / abroad'],
+    formHospedaje: ['Accommodation', 'Airport transport', 'Clinic transfer', "I don't need it"],
     formSubmit: 'Send to Dr. Michel via WhatsApp',
     formNote: 'Submitting opens WhatsApp with your summarized info. Response in under 30 min.',
     formSuccess: 'Your evaluation has been sent!',
-    formSuccessSub: 'WhatsApp opened with your information. Dr. Michel\'s team will reply within 30 minutes during office hours.',
+    formSuccessSub: "WhatsApp opened with your information. Dr. Michel's team will reply within 30 minutes during office hours.",
     formEdit: 'Edit answers',
-    formPesoPlaceholder: 'Weight (kg)',
-    formTallaPlaceholder: 'Height (cm)',
+    formPesoPlaceholder: 'Weight (kg)', formTallaPlaceholder: 'Height (cm)',
     waHeader: '*Pre-consultation Plastic Surgery — Vivezza*\n*Dr. Zuriel Michel Barrera #CMCPER2600*',
-    finalEyebrow: 'Contact us today',
-    finalTitle: 'Let\'s talk today.',
+    finalEyebrow: 'Contact us today', finalTitle: "Let's talk today.",
     sedesTijuanaBadge: 'Medical Tourism · All-Inclusive',
     sedesTijuanaNote: 'All-inclusive packages for patients from the US and Canada. Coordination from border crossing to recovery.',
     sedes: [
@@ -298,7 +299,6 @@ function WhatsAppIcon({ size = 18 }: { size?: number }) {
     </svg>
   )
 }
-
 function PhoneIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -306,15 +306,13 @@ function PhoneIcon({ size = 16 }: { size?: number }) {
     </svg>
   )
 }
-
-function CheckIcon({ size = 16, color = ACCENT }: { size?: number; color?: string }) {
+function CheckIcon({ size = 16, color = CLINIC }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 6 9 17l-5-5" />
     </svg>
   )
 }
-
 function StarIcon({ size = 13, color = ACCENT }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
@@ -339,21 +337,16 @@ function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
           </div>
         </Link>
         <div className="flex items-center gap-3">
-          {/* Lang toggle */}
-          <button
-            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
-            className="rounded-full border border-ink/15 bg-white px-3 py-1.5 text-[11.5px] font-bold tracking-wider text-ink/70 hover:bg-stone transition-colors"
-          >
+          <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+            className="rounded-full border border-ink/15 bg-white px-3 py-1.5 text-[11.5px] font-bold tracking-wider text-ink/70 hover:bg-stone transition-colors">
             {lang === 'es' ? 'EN' : 'ES'}
           </button>
           <a href="#form" className="hidden sm:inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-4 py-2 text-[12.5px] font-semibold text-ink hover:bg-stone transition-colors">
             {t.navPre}
           </a>
           <a href="https://wa.me/526649749264" target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-semibold text-white"
-            style={{ backgroundColor: '#22C35E' }}>
-            <WhatsAppIcon size={14} />
-            {t.navWA}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-semibold text-white" style={{ backgroundColor: '#22C35E' }}>
+            <WhatsAppIcon size={14} />{t.navWA}
           </a>
         </div>
       </div>
@@ -368,7 +361,6 @@ function HeroSection({ lang }: { lang: Lang }) {
     <section className="section-pad pt-14 pb-16 relative overflow-hidden bg-white">
       <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 h-96 w-96 rounded-full blur-3xl opacity-20"
         style={{ background: `radial-gradient(closest-side, ${ACCENT}60, transparent 70%)` }} />
-
       <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="flex items-center gap-2 text-[12px] font-semibold text-muted">
@@ -376,62 +368,47 @@ function HeroSection({ lang }: { lang: Lang }) {
             <span className="text-ink/30">/</span>
             <span style={{ color: ACCENT }}>{t.breadcrumb}</span>
           </div>
-
           <div className="inline-flex items-center gap-2 self-start rounded-full border px-3.5 py-1.5 text-[11px] font-bold tracking-[0.12em] uppercase"
             style={{ borderColor: ACCENT + '50', backgroundColor: ACCENT_SOFT, color: ACCENT }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            {t.heroBadge}
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{t.heroBadge}
           </div>
-
           <h1 className="text-[clamp(2.4rem,5.5vw,4.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-ink">
-            {t.heroH1a}<br />
-            <span style={{ color: ACCENT }}>{t.heroH1b}</span><br />
-            {t.heroH1c}
+            {t.heroH1a}<br /><span style={{ color: ACCENT }}>{t.heroH1b}</span><br />{t.heroH1c}
           </h1>
-
           <p className="text-[16px] leading-[1.65] text-muted max-w-[54ch]">{t.heroP}</p>
-
           <div className="flex flex-wrap gap-2.5">
             {t.heroChips.map((c) => (
               <span key={c} className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-stone px-3 py-1.5 text-[11.5px] font-semibold text-ink/70">
-                <CheckIcon size={11} color={CLINIC} />
-                {c}
+                <CheckIcon size={11} />{c}
               </span>
             ))}
           </div>
-
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <a href="#form"
-              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
+            <a href="#form" className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
               style={{ backgroundColor: ACCENT, boxShadow: `0 18px 40px -12px ${ACCENT}80` }}>
               {t.heroCta}
               <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </a>
-            <a href="tel:6649749264"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-4 text-[15px] font-semibold text-ink hover:bg-stone transition-colors">
-              <PhoneIcon size={15} />
-              {t.heroPhone}
+            <a href="tel:6649749264" className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-4 text-[15px] font-semibold text-ink hover:bg-stone transition-colors">
+              <PhoneIcon size={15} />664 974 9264
             </a>
           </div>
         </div>
-
         <div className="lg:col-span-5">
           <div className="relative">
             <div className="relative overflow-hidden rounded-[32px] aspect-[4/5] bg-stone">
-              <Image src="/photos/dr-michel.jpg" alt="Dr. Zuriel Michel Barrera — Plastic Surgeon"
-                fill className="object-cover object-top" priority />
+              <Image src="/photos/dr-michel.jpg" alt="Dr. Zuriel Michel Barrera" fill className="object-cover object-top" priority />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 50%, rgba(10,16,28,0.65) 100%)' }} />
               <div className="absolute top-4 left-4">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink/80 border border-white/60">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  {t.heroAvailable}
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{t.heroAvailable}
                 </span>
               </div>
               <div className="absolute bottom-6 left-6 right-6 text-white">
                 <div className="text-[1.5rem] font-bold leading-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>{t.doctorName}</div>
                 <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] mt-1.5 opacity-90">{t.doctorRole}</div>
                 <div className="flex items-center gap-1 mt-3">
-                  {[1,2,3,4,5].map(i => <StarIcon key={i} size={12} color={ACCENT} />)}
+                  {[1,2,3,4,5].map(i => <StarIcon key={i} size={12} />)}
                   <span className="ml-2 text-[11px] font-semibold opacity-80">{t.doctorCert}</span>
                 </div>
               </div>
@@ -444,7 +421,6 @@ function HeroSection({ lang }: { lang: Lang }) {
           </div>
         </div>
       </div>
-
       <div className="mt-14 flex flex-wrap items-center gap-6 pt-8 border-t border-ink/8">
         <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">{t.trustBarLabel}</div>
         {t.trustItems.map((b) => (
@@ -458,15 +434,14 @@ function HeroSection({ lang }: { lang: Lang }) {
   )
 }
 
-/* ─── 2. Cuándo verme ────────────────────────────────────── */
+/* ─── 2. When ────────────────────────────────────────────── */
 function WhenSection({ lang }: { lang: Lang }) {
   const t = S[lang]
   return (
     <section className="section-pad py-20 bg-stone">
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
-          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-          {t.whenEyebrow}
+          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />{t.whenEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">
           {t.whenTitle}<br /><span className="text-muted font-semibold">{t.whenTitleEm}</span>
@@ -491,62 +466,72 @@ function WhenSection({ lang }: { lang: Lang }) {
   )
 }
 
-/* ─── 3. Procedimientos ──────────────────────────────────── */
+/* ─── 3. Procedures (3 featured) ────────────────────────── */
 function ProceduresSection({ lang }: { lang: Lang }) {
   const t = S[lang]
-  const [active, setActive] = useState<string>(t.procsTags[0])
-
-  /* reset filter when lang changes */
-  useEffect(() => { setActive(t.procsTags[0]) }, [lang, t.procsTags])
-
-  const filtered = active === t.procsTags[0] ? t.procs : t.procs.filter(p => (p.tag as string) === active)
-
   return (
     <section id="procedimientos" className="section-pad py-20 bg-white">
       <div className="max-w-3xl mb-10">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
-          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-          {t.procsEyebrow}
+          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />{t.procsEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">{t.procsTitle}</h2>
         <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.procsSub}</p>
       </div>
-      <div className="flex flex-wrap gap-2 mb-8">
-        {t.procsTags.map(tag => (
-          <button key={tag} onClick={() => setActive(tag)}
-            className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-all ${active === tag ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
-            style={active === tag ? { backgroundColor: ACCENT } : {}}>
-            {tag}
-          </button>
-        ))}
-      </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((p, i) => (
-          <div key={i} className="rounded-2xl border border-ink/8 bg-white p-6 hover:shadow-md hover:border-orange-200 transition-all">
-            <div className="mb-3">
-              <span className="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+
+      <div className="grid sm:grid-cols-3 gap-5 mb-8">
+        {t.procsFeatured.map((p, i) => (
+          <div key={i} className="rounded-3xl border border-ink/8 bg-white overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+            style={{ borderTop: `3px solid ${ACCENT}` }}>
+            <div className="p-7">
+              <div className="text-4xl mb-4">{p.icon}</div>
+              <div className="inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
                 style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
                 {p.tag}
-              </span>
+              </div>
+              <h3 className="text-[1.3rem] font-extrabold text-ink mb-3 leading-tight">{p.name}</h3>
+              <p className="text-[13.5px] leading-[1.65] text-muted mb-5">{p.desc}</p>
+              <ul className="flex flex-col gap-2">
+                {p.bullets.map((b, j) => (
+                  <li key={j} className="flex items-center gap-2 text-[13px] font-semibold text-ink/75">
+                    <CheckIcon size={13} color={ACCENT} />{b}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-[15.5px] font-bold text-ink mb-2">{p.name}</div>
-            <p className="text-[13px] leading-[1.6] text-muted">{p.desc}</p>
+            <div className="px-7 pb-7">
+              <a href="#form" className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-stone px-4 py-2.5 text-[13px] font-semibold text-ink hover:bg-stone/80 transition-colors">
+                {lang === 'es' ? 'Consultar' : 'Inquire'}
+                <svg width="13" height="13" viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </a>
+            </div>
           </div>
         ))}
+      </div>
+
+      {/* Explore all specialties */}
+      <div className="flex justify-center">
+        <Link href={`/${lang === 'en' ? '?lang=en' : ''}#especialidades`}
+          className="inline-flex items-center gap-2.5 rounded-full border border-ink/15 bg-white px-6 py-3 text-[13.5px] font-semibold text-ink/80 hover:bg-stone hover:border-ink/25 transition-all">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={CLINIC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          {t.procsExploreCta}
+        </Link>
       </div>
     </section>
   )
 }
 
-/* ─── 4. Por qué ─────────────────────────────────────────── */
+/* ─── 4. Why ─────────────────────────────────────────────── */
 function WhySection({ lang }: { lang: Lang }) {
   const t = S[lang]
   return (
     <section className="section-pad py-20 bg-stone">
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: CLINIC }}>
-          <span className="h-px w-6 bg-clinic/50" />
-          {t.whyEyebrow}
+          <span className="h-px w-6 bg-clinic/50" />{t.whyEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">
           {t.whyTitle}<br /><span className="text-muted font-semibold">{t.whyTitleEm}</span>
@@ -576,15 +561,109 @@ function WhySection({ lang }: { lang: Lang }) {
   )
 }
 
-/* ─── 5. Testimonios ─────────────────────────────────────── */
-function TestimonialsSection({ lang }: { lang: Lang }) {
+/* ─── 5. Before/After slider ─────────────────────────────── */
+function RevealSlider({ beforeSrc, afterSrc, beforeLabel, afterLabel }: {
+  beforeSrc: string; afterSrc: string; beforeLabel: string; afterLabel: string
+}) {
+  const [pos, setPos] = useState(50)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+
+  const move = (clientX: number) => {
+    if (!containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const pct = Math.max(2, Math.min(98, ((clientX - rect.left) / rect.width) * 100))
+    setPos(pct)
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative overflow-hidden rounded-2xl aspect-[3/4] sm:aspect-[4/5] cursor-col-resize select-none touch-none"
+      onMouseDown={() => { dragging.current = true }}
+      onMouseUp={() => { dragging.current = false }}
+      onMouseLeave={() => { dragging.current = false }}
+      onMouseMove={e => { if (dragging.current) move(e.clientX) }}
+      onTouchMove={e => { e.preventDefault(); move(e.touches[0].clientX) }}
+    >
+      {/* Before — full layer */}
+      <div className="absolute inset-0">
+        <Image src={beforeSrc} alt="Before" fill className="object-cover grayscale brightness-75" />
+        <div className="absolute bottom-3 left-3 rounded-full bg-ink/75 backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">{beforeLabel}</div>
+      </div>
+      {/* After — revealed from left */}
+      <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+        <Image src={afterSrc} alt="After" fill className="object-cover" />
+        <div className="absolute bottom-3 right-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white" style={{ backgroundColor: ACCENT }}>{afterLabel}</div>
+      </div>
+      {/* Divider line */}
+      <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.4)] pointer-events-none" style={{ left: `${pos}%` }}>
+        {/* Handle */}
+        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-10 w-10 rounded-full bg-white shadow-xl flex items-center justify-center border border-white/80">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l-6-6 6-6M15 6l6 6-6 6" stroke={ACCENT} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BeforeAfterSection({ lang }: { lang: Lang }) {
   const t = S[lang]
+  const cases = [
+    { before: '/photos/patient-consultation.png', after: '/photos/plastic-surgery.png' },
+    { before: '/photos/recovery-room.png', after: '/photos/surgery-team.png' },
+  ]
+
   return (
     <section className="section-pad py-20 bg-white">
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
-          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-          {t.testimonialsEyebrow}
+          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />{t.beforeAfterEyebrow}
+        </div>
+        <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-3">
+          {t.beforeAfterTitle}{' '}
+          <span className="text-muted font-semibold">{t.beforeAfterTitleEm}</span>
+        </h2>
+        <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.beforeAfterSub}</p>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-6 mb-8">
+        {cases.map((c, i) => (
+          <div key={i}>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">{t.beforeAfterCases[i].label}</span>
+              <span className="h-px flex-1 bg-ink/8" />
+              <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+                style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
+                {t.beforeAfterCases[i].proc}
+              </span>
+            </div>
+            <RevealSlider
+              beforeSrc={c.before} afterSrc={c.after}
+              beforeLabel={t.beforeLabel} afterLabel={t.afterLabel}
+            />
+            <p className="mt-2.5 text-center text-[11.5px] font-semibold text-muted">{t.beforeAfterDragHint}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 flex items-start gap-4">
+        <p className="text-[13px] leading-[1.65] text-ink/75">{t.beforeAfterNote}</p>
+      </div>
+    </section>
+  )
+}
+
+/* ─── 6. Testimonials ────────────────────────────────────── */
+function TestimonialsSection({ lang }: { lang: Lang }) {
+  const t = S[lang]
+  return (
+    <section className="section-pad py-20 bg-stone">
+      <div className="max-w-3xl mb-12">
+        <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
+          <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />{t.testimonialsEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-3">
           {t.testimonialsTitle}<br /><span className="text-muted font-semibold">{t.testimonialsTitleEm}</span>
@@ -592,8 +671,8 @@ function TestimonialsSection({ lang }: { lang: Lang }) {
       </div>
       <div className="grid sm:grid-cols-3 gap-5">
         {t.testimonials.map((item, i) => (
-          <div key={i} className="rounded-3xl border border-ink/8 bg-stone p-7 flex flex-col gap-5">
-            <div className="flex gap-1">{[1,2,3,4,5].map(j => <StarIcon key={j} size={13} color={ACCENT} />)}</div>
+          <div key={i} className="rounded-3xl border border-ink/8 bg-white p-7 flex flex-col gap-5">
+            <div className="flex gap-1">{[1,2,3,4,5].map(j => <StarIcon key={j} size={13} />)}</div>
             <p className="text-[14px] leading-[1.7] text-ink/80 flex-1">&ldquo;{item.quote}&rdquo;</p>
             <div>
               <div className="text-[13.5px] font-bold text-ink">{item.name}</div>
@@ -606,7 +685,7 @@ function TestimonialsSection({ lang }: { lang: Lang }) {
   )
 }
 
-/* ─── 6. Formulario ─────────────────────────────────────── */
+/* ─── 7. Form (collapsible) ──────────────────────────────── */
 type FormData = {
   nombre: string; edad: string; procedimiento: string; partos: string
   peso: string; talla: string; cirugiasPrevias: string; enfermedadCronica: string
@@ -614,7 +693,6 @@ type FormData = {
   fotosReferencia: string; acompanante: string; fueraTijuana: string
   hospedaje: string[]; fecha: string
 }
-
 const EMPTY: FormData = {
   nombre: '', edad: '', procedimiento: '', partos: '', peso: '', talla: '',
   cirugiasPrevias: '', enfermedadCronica: '', enfermedadDetalle: '', fuma: '',
@@ -624,8 +702,15 @@ const EMPTY: FormData = {
 
 function PreConsultaForm({ lang }: { lang: Lang }) {
   const t = S[lang]
+  const [open, setOpen] = useState(false)
   const [form, setForm] = useState<FormData>(EMPTY)
   const [sent, setSent] = useState(false)
+  const formRef = useRef<HTMLDivElement>(null)
+
+  const handleOpen = () => {
+    setOpen(true)
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+  }
 
   const set = (key: keyof FormData, val: string) => setForm(prev => ({ ...prev, [key]: val }))
   const toggleHospedaje = (val: string) => setForm(prev => ({
@@ -637,17 +722,12 @@ function PreConsultaForm({ lang }: { lang: Lang }) {
     e.preventDefault()
     const msg = encodeURIComponent(
       `${t.waHeader}\n\n` +
-      `👤 ${form.nombre}\n` +
-      `📅 ${form.edad}\n` +
-      `💉 ${form.procedimiento}\n` +
-      (form.procedimiento === t.formProcs[0] && form.partos ? `🤱 ${form.partos}\n` : '') +
-      `⚖️ ${form.peso} / ${form.talla}\n` +
-      `🔪 ${form.cirugiasPrevias}\n` +
+      `👤 ${form.nombre}\n📅 ${form.edad}\n💉 ${form.procedimiento}\n` +
+      (form.partos ? `🤱 ${form.partos}\n` : '') +
+      `⚖️ ${form.peso} / ${form.talla}\n🔪 ${form.cirugiasPrevias}\n` +
       `🩺 ${form.enfermedadCronica}${form.enfermedadDetalle ? ` — ${form.enfermedadDetalle}` : ''}\n` +
       `🚬 ${form.fuma}${form.fumaFrecuencia ? ` (${form.fumaFrecuencia})` : ''}\n` +
-      `🤰 ${form.lactancia}\n` +
-      `📸 ${form.fotosReferencia}\n` +
-      `👫 ${form.acompanante}\n` +
+      `🤰 ${form.lactancia}\n📸 ${form.fotosReferencia}\n👫 ${form.acompanante}\n` +
       `✈️ ${form.fueraTijuana}\n` +
       (form.hospedaje.length ? `🏨 ${form.hospedaje.join(', ')}\n` : '') +
       `📆 ${form.fecha}`
@@ -656,24 +736,8 @@ function PreConsultaForm({ lang }: { lang: Lang }) {
     setSent(true)
   }
 
-  if (sent) {
-    return (
-      <section id="form" className="section-pad py-20 bg-stone">
-        <div className="max-w-xl mx-auto text-center">
-          <div className="text-5xl mb-5">✅</div>
-          <h3 className="text-[1.8rem] font-bold text-ink mb-3">{t.formSuccess}</h3>
-          <p className="text-[15px] text-muted leading-[1.65] mb-6">{t.formSuccessSub}</p>
-          <button onClick={() => setSent(false)}
-            className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-[13.5px] font-semibold text-ink hover:bg-stone transition-colors">
-            {t.formEdit}
-          </button>
-        </div>
-      </section>
-    )
-  }
-
-  const inputClass = "w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-[14px] font-medium text-ink placeholder-muted/60 focus:outline-none focus:border-clinic/50 focus:ring-2 focus:ring-clinic/10 transition-all"
-  const labelClass = "block text-[12.5px] font-bold uppercase tracking-[0.1em] text-ink/60 mb-1.5"
+  const inputCls = "w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-[14px] font-medium text-ink placeholder-muted/60 focus:outline-none focus:border-clinic/50 focus:ring-2 focus:ring-clinic/10 transition-all"
+  const labelCls = "block text-[12.5px] font-bold uppercase tracking-[0.1em] text-ink/60 mb-1.5"
 
   const RadioGroup = ({ value, options, onChange }: { value: string; options: readonly string[]; onChange: (v: string) => void }) => (
     <div className="flex flex-wrap gap-2">
@@ -688,110 +752,126 @@ function PreConsultaForm({ lang }: { lang: Lang }) {
   )
 
   return (
-    <section id="form" className="section-pad py-20 bg-stone">
+    <section id="form" className="section-pad py-20 bg-stone" ref={formRef}>
       <div className="max-w-3xl mx-auto">
         <div className="max-w-2xl mb-10">
           <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
-            <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-            {t.formEyebrow}
+            <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />{t.formEyebrow}
           </div>
           <h2 className="text-[clamp(1.9rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-3">{t.formTitle}</h2>
           <p className="text-[15px] leading-[1.65] text-muted">{t.formSub}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-ink/8 p-7 sm:p-10 flex flex-col gap-7 shadow-sm">
-          <div>
-            <label className={labelClass}>1. {t.formQ[0]}</label>
-            <input required className={inputClass} placeholder={lang === 'es' ? 'Tu nombre' : 'Your name'} value={form.nombre} onChange={e => set('nombre', e.target.value)} />
-          </div>
-          <div>
-            <label className={labelClass}>2. {t.formQ[1]}</label>
-            <input required type="number" min="18" max="80" className={`${inputClass} w-32`} placeholder="32" value={form.edad} onChange={e => set('edad', e.target.value)} />
-          </div>
-          <div>
-            <label className={labelClass}>3. {t.formQ[2]}</label>
-            <RadioGroup value={form.procedimiento} options={t.formProcs} onChange={v => set('procedimiento', v)} />
-          </div>
-          {form.procedimiento === t.formProcs[0] && (
-            <div className="rounded-2xl border p-5" style={{ borderColor: ACCENT + '50', backgroundColor: ACCENT_SOFT }}>
-              <label className={labelClass}>4. {t.formQ[3]}</label>
-              <input className={inputClass} placeholder={lang === 'es' ? 'Ej. 2 partos naturales, 1 cesárea' : 'E.g. 2 natural deliveries, 1 C-section'} value={form.partos} onChange={e => set('partos', e.target.value)} />
-            </div>
-          )}
-          <div>
-            <label className={labelClass}>5. {t.formQ[4]}</label>
-            <div className="flex gap-3">
-              <input className={`${inputClass} flex-1`} placeholder={t.formPesoPlaceholder} value={form.peso} onChange={e => set('peso', e.target.value)} />
-              <input className={`${inputClass} flex-1`} placeholder={t.formTallaPlaceholder} value={form.talla} onChange={e => set('talla', e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <label className={labelClass}>6. {t.formQ[5]}</label>
-            <RadioGroup value={form.cirugiasPrevias} options={t.formPrevOps} onChange={v => set('cirugiasPrevias', v)} />
-          </div>
-          <div>
-            <label className={labelClass}>7. {t.formQ[6]}</label>
-            <p className="text-[12px] text-muted mb-2">{t.formQ7hint}</p>
-            <RadioGroup value={form.enfermedadCronica} options={[lang === 'es' ? 'No' : 'No', lang === 'es' ? 'Sí' : 'Yes']} onChange={v => set('enfermedadCronica', v)} />
-            {(form.enfermedadCronica === 'Sí' || form.enfermedadCronica === 'Yes') && (
-              <input className={`${inputClass} mt-3`} placeholder={t.formQ7detail} value={form.enfermedadDetalle} onChange={e => set('enfermedadDetalle', e.target.value)} />
-            )}
-          </div>
-          <div>
-            <label className={labelClass}>8. {t.formQ[7]}</label>
-            <RadioGroup value={form.fuma} options={t.formSmoke} onChange={v => set('fuma', v)} />
-            {(form.fuma === t.formSmoke[1] || form.fuma === t.formSmoke[2]) && (
-              <input className={`${inputClass} mt-3`} placeholder={t.formQ8detail} value={form.fumaFrecuencia} onChange={e => set('fumaFrecuencia', e.target.value)} />
-            )}
-          </div>
-          <div>
-            <label className={labelClass}>9. {t.formQ[8]}</label>
-            <RadioGroup value={form.lactancia} options={t.formLactancia} onChange={v => set('lactancia', v)} />
-          </div>
-          <div>
-            <label className={labelClass}>10. {t.formQ[9]}</label>
-            <RadioGroup value={form.fotosReferencia} options={t.formPhotos} onChange={v => set('fotosReferencia', v)} />
-          </div>
-          <div>
-            <label className={labelClass}>11. {t.formQ[10]}</label>
-            <RadioGroup value={form.acompanante} options={t.formCompanion} onChange={v => set('acompanante', v)} />
-          </div>
-          <div>
-            <label className={labelClass}>12. {t.formQ[11]}</label>
-            <RadioGroup value={form.fueraTijuana} options={t.formOrigin} onChange={v => set('fueraTijuana', v)} />
-          </div>
-          <div>
-            <label className={labelClass}>13. {t.formQ[12]}</label>
-            <div className="flex flex-wrap gap-2">
-              {t.formHospedaje.map(opt => (
-                <button key={opt} type="button" onClick={() => toggleHospedaje(opt)}
-                  className={`px-4 py-2 rounded-full border text-[13.5px] font-semibold transition-all ${form.hospedaje.includes(opt) ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
-                  style={form.hospedaje.includes(opt) ? { backgroundColor: ACCENT } : {}}>
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className={labelClass}>14. {t.formQ[13]}</label>
-            <input type="date" className={`${inputClass} w-full sm:w-64`} value={form.fecha} onChange={e => set('fecha', e.target.value)} />
-          </div>
-          <div className="pt-4 border-t border-ink/8">
-            <button type="submit"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full px-10 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
+        {/* Trigger — shown when form is closed */}
+        {!open && !sent && (
+          <div className="bg-white rounded-3xl border border-ink/8 p-8 sm:p-10 text-center shadow-sm">
+            <div className="text-4xl mb-4">📋</div>
+            <h3 className="text-[1.35rem] font-bold text-ink mb-2">{t.formTriggerBtn}</h3>
+            <p className="text-[14px] text-muted mb-7">{t.formTriggerSub}</p>
+            <button onClick={handleOpen}
+              className="inline-flex items-center gap-3 rounded-full px-10 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
               style={{ backgroundColor: ACCENT, boxShadow: `0 18px 40px -12px ${ACCENT}80` }}>
               <WhatsAppIcon size={18} />
-              {t.formSubmit}
+              {t.formTriggerBtn}
             </button>
-            <p className="mt-3 text-[12px] text-muted">{t.formNote}</p>
           </div>
-        </form>
+        )}
+
+        {/* Success state */}
+        {sent && (
+          <div className="bg-white rounded-3xl border border-ink/8 p-10 text-center shadow-sm">
+            <div className="text-5xl mb-5">✅</div>
+            <h3 className="text-[1.8rem] font-bold text-ink mb-3">{t.formSuccess}</h3>
+            <p className="text-[15px] text-muted leading-[1.65] mb-6">{t.formSuccessSub}</p>
+            <button onClick={() => { setSent(false); setOpen(true) }}
+              className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-[13.5px] font-semibold text-ink hover:bg-stone transition-colors">
+              {t.formEdit}
+            </button>
+          </div>
+        )}
+
+        {/* Full form — shown when open and not sent */}
+        {open && !sent && (
+          <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-ink/8 p-7 sm:p-10 flex flex-col gap-7 shadow-sm">
+            <div><label className={labelCls}>1. {t.formQ[0]}</label>
+              <input required className={inputCls} placeholder={lang === 'es' ? 'Tu nombre' : 'Your name'} value={form.nombre} onChange={e => set('nombre', e.target.value)} />
+            </div>
+            <div><label className={labelCls}>2. {t.formQ[1]}</label>
+              <input required type="number" min="18" max="80" className={`${inputCls} w-32`} placeholder="32" value={form.edad} onChange={e => set('edad', e.target.value)} />
+            </div>
+            <div><label className={labelCls}>3. {t.formQ[2]}</label>
+              <RadioGroup value={form.procedimiento} options={t.formProcs} onChange={v => set('procedimiento', v)} />
+            </div>
+            {form.procedimiento === t.formProcs[0] && (
+              <div className="rounded-2xl border p-5" style={{ borderColor: ACCENT + '50', backgroundColor: ACCENT_SOFT }}>
+                <label className={labelCls}>4. {t.formQ[3]}</label>
+                <input className={inputCls} placeholder={lang === 'es' ? 'Ej. 2 partos naturales, 1 cesárea' : 'E.g. 2 natural deliveries, 1 C-section'} value={form.partos} onChange={e => set('partos', e.target.value)} />
+              </div>
+            )}
+            <div><label className={labelCls}>5. {t.formQ[4]}</label>
+              <div className="flex gap-3">
+                <input className={`${inputCls} flex-1`} placeholder={t.formPesoPlaceholder} value={form.peso} onChange={e => set('peso', e.target.value)} />
+                <input className={`${inputCls} flex-1`} placeholder={t.formTallaPlaceholder} value={form.talla} onChange={e => set('talla', e.target.value)} />
+              </div>
+            </div>
+            <div><label className={labelCls}>6. {t.formQ[5]}</label>
+              <RadioGroup value={form.cirugiasPrevias} options={t.formPrevOps} onChange={v => set('cirugiasPrevias', v)} />
+            </div>
+            <div><label className={labelCls}>7. {t.formQ[6]}</label>
+              <p className="text-[12px] text-muted mb-2">{t.formQ7hint}</p>
+              <RadioGroup value={form.enfermedadCronica} options={t.formYesNo} onChange={v => set('enfermedadCronica', v)} />
+              {(form.enfermedadCronica === 'Sí' || form.enfermedadCronica === 'Yes') && (
+                <input className={`${inputCls} mt-3`} placeholder={t.formQ7detail} value={form.enfermedadDetalle} onChange={e => set('enfermedadDetalle', e.target.value)} />
+              )}
+            </div>
+            <div><label className={labelCls}>8. {t.formQ[7]}</label>
+              <RadioGroup value={form.fuma} options={t.formSmoke} onChange={v => set('fuma', v)} />
+              {(form.fuma === t.formSmoke[1] || form.fuma === t.formSmoke[2]) && (
+                <input className={`${inputCls} mt-3`} placeholder={t.formQ8detail} value={form.fumaFrecuencia} onChange={e => set('fumaFrecuencia', e.target.value)} />
+              )}
+            </div>
+            <div><label className={labelCls}>9. {t.formQ[8]}</label>
+              <RadioGroup value={form.lactancia} options={t.formLactancia} onChange={v => set('lactancia', v)} />
+            </div>
+            <div><label className={labelCls}>10. {t.formQ[9]}</label>
+              <RadioGroup value={form.fotosReferencia} options={t.formPhotos} onChange={v => set('fotosReferencia', v)} />
+            </div>
+            <div><label className={labelCls}>11. {t.formQ[10]}</label>
+              <RadioGroup value={form.acompanante} options={t.formCompanion} onChange={v => set('acompanante', v)} />
+            </div>
+            <div><label className={labelCls}>12. {t.formQ[11]}</label>
+              <RadioGroup value={form.fueraTijuana} options={t.formOrigin} onChange={v => set('fueraTijuana', v)} />
+            </div>
+            <div><label className={labelCls}>13. {t.formQ[12]}</label>
+              <div className="flex flex-wrap gap-2">
+                {t.formHospedaje.map(opt => (
+                  <button key={opt} type="button" onClick={() => toggleHospedaje(opt)}
+                    className={`px-4 py-2 rounded-full border text-[13.5px] font-semibold transition-all ${form.hospedaje.includes(opt) ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
+                    style={form.hospedaje.includes(opt) ? { backgroundColor: ACCENT } : {}}>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div><label className={labelCls}>14. {t.formQ[13]}</label>
+              <input type="date" className={`${inputCls} w-full sm:w-64`} value={form.fecha} onChange={e => set('fecha', e.target.value)} />
+            </div>
+            <div className="pt-4 border-t border-ink/8">
+              <button type="submit"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full px-10 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
+                style={{ backgroundColor: ACCENT, boxShadow: `0 18px 40px -12px ${ACCENT}80` }}>
+                <WhatsAppIcon size={18} />{t.formSubmit}
+              </button>
+              <p className="mt-3 text-[12px] text-muted">{t.formNote}</p>
+            </div>
+          </form>
+        )}
       </div>
     </section>
   )
 }
 
-/* ─── 7. CTA final + Sedes ───────────────────────────────── */
+/* ─── 8. Final CTA ───────────────────────────────────────── */
 function FinalCTA({ lang }: { lang: Lang }) {
   const t = S[lang]
   const sedesBadges = [
@@ -799,35 +879,30 @@ function FinalCTA({ lang }: { lang: Lang }) {
     { badge: 'CDMX', color: CLINIC, note: '' },
     { badge: 'GDL', color: CLINIC, note: '' },
   ]
-
   return (
     <section id="contacto" className="section-pad py-20 bg-white border-t border-ink/8">
       <div className="grid lg:grid-cols-2 gap-12 items-start">
         <div>
           <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
-            <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-            {t.finalEyebrow}
+            <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />{t.finalEyebrow}
           </div>
           <h2 className="text-[clamp(1.7rem,3.5vw,2.8rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-6">{t.finalTitle}</h2>
           <div className="flex flex-col gap-4 mb-10">
             <a href="https://wa.me/526649749264" target="_blank" rel="noreferrer"
               className="inline-flex items-center gap-3 rounded-2xl px-6 py-4 text-[15px] font-bold text-white w-full sm:w-auto"
               style={{ backgroundColor: '#22C35E', boxShadow: '0 14px 30px -10px rgba(34,195,94,0.5)' }}>
-              <WhatsAppIcon size={20} />
-              WhatsApp — 664 974 9264
+              <WhatsAppIcon size={20} />WhatsApp — 664 974 9264
             </a>
             <a href="tel:6649749264"
               className="inline-flex items-center gap-3 rounded-2xl border border-ink/15 bg-white px-6 py-4 text-[15px] font-semibold text-ink hover:bg-stone transition-colors w-full sm:w-auto">
-              <PhoneIcon size={18} />
-              664 974 9264
+              <PhoneIcon size={18} />664 974 9264
             </a>
           </div>
           <div className="flex flex-col gap-3">
             {t.sedes.map((s, i) => (
               <div key={s.ciudad} className="rounded-2xl border border-ink/8 bg-stone p-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] rounded-full px-2.5 py-1 text-white"
-                    style={{ backgroundColor: sedesBadges[i].color }}>{sedesBadges[i].badge}</span>
+                  <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] rounded-full px-2.5 py-1 text-white" style={{ backgroundColor: sedesBadges[i].color }}>{sedesBadges[i].badge}</span>
                   <span className="text-[14px] font-bold text-ink">{s.ciudad}</span>
                 </div>
                 <div className="text-[13px] font-medium text-ink/70 leading-[1.7] whitespace-pre-line">{s.detalle}</div>
@@ -837,19 +912,16 @@ function FinalCTA({ lang }: { lang: Lang }) {
           </div>
         </div>
         <div className="relative overflow-hidden rounded-3xl aspect-video bg-stone border border-ink/8">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d107250.57!2d-117.0382!3d32.5149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80d9489061bdd3ef%3A0x0!2sTijuana%2C+Baja+California!5e0!3m2!1ses!2smx!4v1"
-            width="100%" height="100%" style={{ border: 0 }}
-            allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-            title={t.mapTitle} className="absolute inset-0 w-full h-full"
-          />
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d107250.57!2d-117.0382!3d32.5149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80d9489061bdd3ef%3A0x0!2sTijuana%2C+Baja+California!5e0!3m2!1ses!2smx!4v1"
+            width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade" title={t.mapTitle} className="absolute inset-0 w-full h-full" />
         </div>
       </div>
     </section>
   )
 }
 
-/* ─── Inner page (reads searchParams) ───────────────────── */
+/* ─── Inner page ─────────────────────────────────────────── */
 function PageInner() {
   const searchParams = useSearchParams()
   const initialLang: Lang = searchParams.get('lang') === 'en' ? 'en' : 'es'
@@ -862,6 +934,7 @@ function PageInner() {
       <WhenSection lang={lang} />
       <ProceduresSection lang={lang} />
       <WhySection lang={lang} />
+      <BeforeAfterSection lang={lang} />
       <TestimonialsSection lang={lang} />
       <PreConsultaForm lang={lang} />
       <FinalCTA lang={lang} />
@@ -871,7 +944,6 @@ function PageInner() {
         style={{ backgroundColor: '#22C35E', ['--pulse-color' as string]: '#22C35E55' }}>
         <WhatsAppIcon size={26} />
       </a>
-
       <style>{`
         @keyframes softPulse {
           0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color); }
@@ -883,7 +955,6 @@ function PageInner() {
   )
 }
 
-/* ─── Page export ────────────────────────────────────────── */
 export default function CirugiaPlasticaPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-white" />}>
