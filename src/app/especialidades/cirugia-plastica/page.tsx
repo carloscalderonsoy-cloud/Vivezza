@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -8,6 +9,286 @@ import Image from 'next/image'
 const ACCENT = '#FF7F50'
 const ACCENT_SOFT = '#FCE3D8'
 const CLINIC = '#1B5FBE'
+
+type Lang = 'es' | 'en'
+
+/* ─── All strings ────────────────────────────────────────── */
+const S = {
+  es: {
+    /* nav */
+    navPre: 'Pre-consulta',
+    navWA: 'WhatsApp',
+    /* breadcrumb */
+    breadcrumb: 'Cirugía Plástica',
+    /* hero */
+    heroBadge: 'CMCPER Certificado #2600 · Vivezza',
+    heroAvailable: 'Disponible hoy',
+    heroH1a: 'Armonía, proporción',
+    heroH1b: 'y resultados',
+    heroH1c: 'naturales.',
+    heroP: 'El Dr. Zuriel Michel no sigue tendencias virales. Diseña cada procedimiento alrededor de tu anatomía, tu proporción y tus metas — con acompañamiento one-on-one desde la valoración hasta la recuperación completa.',
+    heroChips: ['CMCPER Certificado #2600', 'Body Contour Internacional', 'Quirófano JCI Acreditado', 'Acompañamiento 1 a 1'],
+    heroCta: 'Agenda tu valoración gratuita',
+    heroPhone: '664 974 9264',
+    certLabel: 'Certificación',
+    certSub: 'CMCPER',
+    doctorName: 'Dr. Zuriel Michel Barrera',
+    doctorRole: 'Cirujano Plástico, Estético y Reconstructivo',
+    doctorCert: 'Cert. CMCPER #2600',
+    trustBarLabel: 'Respaldo institucional',
+    trustItems: [
+      { label: 'CMCPER', sub: 'Consejo Mexicano de Cirugía Plástica' },
+      { label: 'AMCPER', sub: 'Asociación Mexicana de Cirugía Plástica' },
+      { label: 'JCI', sub: 'Joint Commission International' },
+      { label: 'ISO 9001', sub: 'Gestión de Calidad' },
+    ],
+    /* when section */
+    whenEyebrow: 'Señales de consulta',
+    whenTitle: '¿Cuándo es el momento',
+    whenTitleEm: 'de verte con el Dr. Michel?',
+    whenSub: 'No necesitas esperar al "momento perfecto". Si alguna de estas situaciones te describe, una valoración sin costo puede darte claridad y un plan real.',
+    whenSituations: [
+      { emoji: '🤱', title: 'Después de la maternidad', desc: 'Tu figura cambió con los embarazos y el ejercicio ya no es suficiente para recuperarla.' },
+      { emoji: '⚖️', title: 'Bajaste de peso y tienes piel sobrante', desc: 'La cirugía contorna lo que la dieta y el gym no pueden eliminar.' },
+      { emoji: '👃', title: 'Tu nariz no armoniza con tu rostro', desc: 'No se trata de moda. Se trata de proporción y de sentirte en paz con tu reflejo.' },
+      { emoji: '💪', title: 'Quieres definición real, no solo bajar de peso', desc: 'La Lipo HD y el BBL esculpen lo que el entrenamiento no puede lograr.' },
+      { emoji: '🪞', title: 'El tiempo está cambiando tu rostro', desc: 'Párpados caídos, ptosis o pérdida de contorno que afectan tu confianza.' },
+      { emoji: '💊', title: 'Asimetría o corrección reconstructiva', desc: 'El Dr. Michel atiende diferencias congénitas, post-accidente o revisiones de cirugías previas.' },
+    ],
+    whenCta: 'Me identifico — quiero consultar',
+    /* procedures */
+    procsEyebrow: 'Procedimientos especializados',
+    procsTitle: 'Tres pilares de especialidad',
+    procsSub: 'Contorno corporal, cirugía mamaria y armonización facial avanzada — cada área con protocolos y técnicas especializadas.',
+    procsTags: ['Todos', 'Contorno Corporal', 'Mamaria', 'Facial'],
+    procs: [
+      { name: 'Liposucción HD / Lipo Vaser', tag: 'Contorno Corporal', desc: 'Definición muscular de alta definición mediante ultrasonido. Abdomen, flancos, espalda y muslos con precisión milimétrica.' },
+      { name: 'Lipoescultura', tag: 'Contorno Corporal', desc: 'Remodelado integral de la silueta redistribuyendo grasa para lograr proporciones naturales y armónicas.' },
+      { name: 'Abdominoplastia (Tummy Tuck)', tag: 'Contorno Corporal', desc: 'Extirpación de piel sobrante y reparación muscular del abdomen. Ideal post-maternidad o tras pérdida de peso significativa.' },
+      { name: 'Mini Abdominoplastia', tag: 'Contorno Corporal', desc: 'Versión de menor alcance para exceso localizado bajo el ombligo. Cicatriz discreta y recuperación más rápida.' },
+      { name: 'Mommy Makeover', tag: 'Contorno Corporal', desc: 'Protocolo combinado: abdominoplastia, mamoplastia y lipo en una sola intervención. Recuperación única, resultados integrales.' },
+      { name: 'BBL (Brazilian Butt Lift)', tag: 'Contorno Corporal', desc: 'Transferencia de grasa propia con técnica segura para proyección y forma en glúteos. Sin implantes, resultado natural.' },
+      { name: 'Aumento de busto', tag: 'Mamaria', desc: 'Implantes de silicón de alta cohesividad. Enfoque en proporción y armonía, no solo en tamaño.' },
+      { name: 'Reducción mamaria', tag: 'Mamaria', desc: 'Alivia dolor de espalda, mejora postura y redefine la silueta cuando el volumen genera molestias.' },
+      { name: 'Mastopexia (levantamiento)', tag: 'Mamaria', desc: 'Reposiciona el busto caído sin cambiar necesariamente el volumen. Puede combinarse con aumento.' },
+      { name: 'Lip Lift', tag: 'Facial', desc: 'Eleva y define el labio superior para rejuvenecer el tercio inferior del rostro. Resultado permanente y natural.' },
+      { name: 'Lipopapada (Chin Lipo)', tag: 'Facial', desc: 'Elimina la grasa submentoniana para definir el contorno del cuello y la mandíbula. Mínimamente invasivo.' },
+      { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinición del ángulo y la línea mandibular para un contorno facial más simétrico y definido.' },
+      { name: 'Mini Lifting Facial', tag: 'Facial', desc: 'Reposiciona tejidos caídos de mejillas y cuello con incisiones mínimas. Rejuvenece sin cambiar tu identidad.' },
+      { name: 'Blefaroplastia', tag: 'Facial', desc: 'Corrección de párpados superiores e inferiores caídos o con exceso de piel. Alta precisión, procedimiento ambulatorio.' },
+      { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Radiofrecuencia para tensar la piel sin cirugía abierta. Ideales como complemento o alternativa al lifting.' },
+    ],
+    /* why */
+    whyEyebrow: 'La filosofía del Dr. Michel',
+    whyTitle: 'Ética médica y',
+    whyTitleEm: 'precisión artística.',
+    whySub: 'Honestidad clínica, proporciones estudiadas y seguimiento real. No todos los procedimientos son para todos los pacientes — y el Dr. Michel te lo dice con claridad.',
+    whyDiffs: [
+      { icon: '🎯', title: 'Resultados naturales, no tendencias virales', desc: 'El Dr. Michel rechaza las modas estéticas de redes sociales que no son médicamente adecuadas. La cirugía mejora versiones, no transforma identidades.' },
+      { icon: '🏥', title: 'Quirófano hospitalario, no clínica ambulatoria', desc: 'Cada procedimiento se realiza en instalaciones certificadas con equipo de soporte hospitalario completo disponible en todo momento.' },
+      { icon: '🤝', title: 'Acompañamiento one-on-one', desc: 'El Dr. Michel no deja a sus pacientes solos después del quirófano. Diseña contigo una recuperación óptima y tranquila desde el primer día.' },
+      { icon: '🌎', title: 'Formación internacional continua', desc: 'Especialización en Body Contour Training en México y Colombia. Asistente activo a congresos AMCPER para mantener técnicas al día.' },
+    ],
+    whyStats: [
+      { v: '#2600', l: 'Cert. CMCPER' },
+      { v: '3', l: 'Sedes de atención' },
+      { v: '98%', l: 'Satisfacción reportada' },
+      { v: '24/7', l: 'Soporte post-op' },
+    ],
+    /* testimonials */
+    testimonialsEyebrow: 'Pacientes reales',
+    testimonialsTitle: 'Lo que dicen quienes',
+    testimonialsTitleEm: 'ya confían en el Dr. Michel.',
+    testimonials: [
+      { quote: 'Como enfermera, sé reconocer la atención médica de calidad cuando la veo. El equipo fue increíblemente profesional. El Dr. Zuriel tiene un trato tranquilo y tranquilizador en todo momento.', name: 'Nathaly T.', proc: 'Lipopapada, FaceTite y Endolift' },
+      { quote: 'Excelente cirujano. Muy atento. Explica las cosas bien. Escucha tus preocupaciones y deseos. Gran cuidado postoperatorio.', name: 'Pam C.', proc: 'Aumento de busto' },
+      { quote: 'Lo que más valoro es su honestidad. Me explicó qué procedimientos eran adecuados para mí y cuáles no. Eso genera una confianza enorme antes de entrar al quirófano.', name: 'Paciente verificada', proc: 'Mommy Makeover' },
+    ],
+    /* form */
+    formEyebrow: 'Valoración gratuita',
+    formTitle: 'Cuéntanos sobre ti',
+    formSub: 'Esta información permite que el Dr. Michel llegue a tu primera consulta ya preparado para tu caso. 100% confidencial.',
+    formQ: [
+      'Nombre completo *',
+      'Edad *',
+      '¿Qué procedimiento te interesa? *',
+      '¿Cuántos partos has tenido y de qué tipo?',
+      'Peso actual y talla',
+      '¿Has tenido cirugías estéticas previas?',
+      '¿Tienes alguna enfermedad crónica?',
+      '¿Fumas?',
+      '¿Estás en período de lactancia o embarazo?',
+      '¿Tienes fotos de referencia del resultado que buscas?',
+      '¿Tienes alguien que te acompañe durante la recuperación?',
+      '¿Vienes desde fuera de Tijuana o del extranjero?',
+      '¿Necesitas hospedaje o transporte?',
+      'Fecha aproximada de interés',
+    ],
+    formQ7hint: '(diabetes, hipertensión, problemas de coagulación u otra)',
+    formQ7detail: '¿Cuál? ¿Está controlada?',
+    formQ8detail: '¿Cuántos cigarros al día aproximadamente?',
+    formProcs: ['Mommy Makeover', 'BBL', 'Lipo HD', 'Aumento de busto', 'Abdominoplastia', 'Facial', 'Otro'],
+    formPrevOps: ['No', 'Sí, una', 'Sí, varias'],
+    formSmoke: ['No', 'Ocasionalmente', 'Sí, regularmente'],
+    formLactancia: ['No', 'Embarazada', 'En lactancia'],
+    formPhotos: ['Sí, las tengo', 'Aún no', 'Las buscaré antes'],
+    formCompanion: ['Sí', 'No, necesito apoyo', 'Aún no sé'],
+    formOrigin: ['Soy de Tijuana', 'Vengo de otro estado', 'Vengo de USA / extranjero'],
+    formHospedaje: ['Hospedaje', 'Transporte aeropuerto', 'Traslado clínica', 'No necesito'],
+    formSubmit: 'Enviar al Dr. Michel por WhatsApp',
+    formNote: 'Al enviar, se abre WhatsApp con tu información resumida. Respuesta en menos de 30 min.',
+    formSuccess: '¡Tu valoración fue enviada!',
+    formSuccessSub: 'Se abrió WhatsApp con tu información. El Dr. Michel o su equipo te responden en menos de 30 minutos en horario de atención.',
+    formEdit: 'Editar respuestas',
+    formPesoPlaceholder: 'Peso (kg)',
+    formTallaPlaceholder: 'Talla (cm)',
+    /* WA message label */
+    waHeader: '*Pre-consulta Cirugía Plástica — Vivezza*\n*Dr. Zuriel Michel Barrera #CMCPER2600*',
+    /* final cta */
+    finalEyebrow: 'Contáctanos hoy',
+    finalTitle: 'Hablemos hoy mismo.',
+    sedesTijuanaBadge: 'Turismo Médico · All-Inclusive',
+    sedesTijuanaNote: 'Paquetes all-inclusive para pacientes de USA y Canadá. Coordinación desde el cruce fronterizo hasta la recuperación.',
+    sedes: [
+      { ciudad: 'Tijuana, B.C.', detalle: 'Erasmo Castellanos q.1874-102\nZona urbana Río · Tijuana, B.C.' },
+      { ciudad: 'Ciudad de México', detalle: 'Hospital San Ángel Inn Satélite\nConsultorio 1406' },
+      { ciudad: 'Guadalajara', detalle: 'Médica Golfo de Cortés' },
+    ],
+    mapTitle: 'Vivezza Tijuana',
+  },
+  en: {
+    navPre: 'Pre-consultation',
+    navWA: 'WhatsApp',
+    breadcrumb: 'Plastic Surgery',
+    heroBadge: 'CMCPER Certified #2600 · Vivezza',
+    heroAvailable: 'Available today',
+    heroH1a: 'Harmony, proportion',
+    heroH1b: 'and natural',
+    heroH1c: 'results.',
+    heroP: 'Dr. Zuriel Michel doesn\'t follow viral trends. He designs every procedure around your anatomy, your proportions and your goals — with one-on-one care from the first consultation through full recovery.',
+    heroChips: ['CMCPER Certified #2600', 'International Body Contour', 'JCI Accredited OR', 'One-on-One Care'],
+    heroCta: 'Schedule your free evaluation',
+    heroPhone: '664 974 9264',
+    certLabel: 'Certification',
+    certSub: 'CMCPER',
+    doctorName: 'Dr. Zuriel Michel Barrera',
+    doctorRole: 'Plastic, Aesthetic & Reconstructive Surgeon',
+    doctorCert: 'Cert. CMCPER #2600',
+    trustBarLabel: 'Institutional backing',
+    trustItems: [
+      { label: 'CMCPER', sub: 'Mexican Board of Plastic Surgery' },
+      { label: 'AMCPER', sub: 'Mexican Association of Plastic Surgery' },
+      { label: 'JCI', sub: 'Joint Commission International' },
+      { label: 'ISO 9001', sub: 'Quality Management' },
+    ],
+    whenEyebrow: 'Consultation signals',
+    whenTitle: 'When is the right time',
+    whenTitleEm: 'to see Dr. Michel?',
+    whenSub: 'You don\'t need to wait for the "perfect moment." If any of these situations describe you, a free evaluation can give you clarity and a real plan.',
+    whenSituations: [
+      { emoji: '🤱', title: 'After motherhood', desc: 'Your body changed through pregnancy and exercise alone isn\'t enough to restore your figure.' },
+      { emoji: '⚖️', title: 'Weight loss left excess skin', desc: 'Surgery contours what diet and exercise can\'t remove.' },
+      { emoji: '👃', title: 'Your nose doesn\'t harmonize with your face', desc: 'It\'s not about trends. It\'s about proportion and feeling at peace with your reflection.' },
+      { emoji: '💪', title: 'You want real definition, not just weight loss', desc: 'HD Lipo and BBL sculpt what training alone cannot achieve.' },
+      { emoji: '🪞', title: 'Time is changing your face', desc: 'Drooping eyelids, ptosis, or loss of contour that affects your confidence.' },
+      { emoji: '💊', title: 'Asymmetry or reconstructive correction', desc: 'Dr. Michel treats congenital differences, post-accident cases, and prior surgery revisions.' },
+    ],
+    whenCta: 'This describes me — I want to consult',
+    procsEyebrow: 'Specialized procedures',
+    procsTitle: 'Three pillars of expertise',
+    procsSub: 'Body contouring, breast surgery and advanced facial contouring — each area with specialized protocols and techniques.',
+    procsTags: ['All', 'Body Contour', 'Breast', 'Facial'],
+    procs: [
+      { name: 'HD Lipo / Vaser Lipo', tag: 'Body Contour', desc: 'High-definition muscle definition using ultrasound. Abdomen, flanks, back and thighs with millimetric precision.' },
+      { name: 'Liposculpture', tag: 'Body Contour', desc: 'Full silhouette remodeling by redistributing fat to achieve natural, harmonious proportions.' },
+      { name: 'Abdominoplasty (Tummy Tuck)', tag: 'Body Contour', desc: 'Removal of excess skin and abdominal muscle repair. Ideal post-maternity or after significant weight loss.' },
+      { name: 'Mini Abdominoplasty', tag: 'Body Contour', desc: 'Smaller-scope version for localized excess below the navel. Discreet scar and faster recovery.' },
+      { name: 'Mommy Makeover', tag: 'Body Contour', desc: 'Combined protocol: abdominoplasty, breast surgery and lipo in a single session. One recovery, comprehensive results.' },
+      { name: 'BBL (Brazilian Butt Lift)', tag: 'Body Contour', desc: 'Own-fat transfer with safe technique for gluteal projection and shape. No implants, natural result.' },
+      { name: 'Breast augmentation', tag: 'Breast', desc: 'High-cohesion silicone implants. Focus on proportion and harmony, not just size.' },
+      { name: 'Breast reduction', tag: 'Breast', desc: 'Relieves back pain, improves posture and redefines the silhouette when volume causes physical discomfort.' },
+      { name: 'Mastopexy (breast lift)', tag: 'Breast', desc: 'Repositions sagging breasts without necessarily changing volume. Can be combined with augmentation.' },
+      { name: 'Lip Lift', tag: 'Facial', desc: 'Lifts and defines the upper lip to rejuvenate the lower third of the face. Permanent and natural result.' },
+      { name: 'Chin Lipo (Lipopapada)', tag: 'Facial', desc: 'Removes submental fat to define the neck and jawline contour. Minimally invasive.' },
+      { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinition of the jaw angle and mandibular line for a more symmetrical, defined facial contour.' },
+      { name: 'Mini Facelift', tag: 'Facial', desc: 'Repositions sagging cheek and neck tissue with minimal incisions. Rejuvenates without changing your identity.' },
+      { name: 'Blepharoplasty', tag: 'Facial', desc: 'Correction of drooping upper and lower eyelids or excess skin. High precision, outpatient procedure.' },
+      { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Radiofrequency to tighten skin without open surgery. Ideal as a complement or alternative to facelift.' },
+    ],
+    whyEyebrow: 'Dr. Michel\'s philosophy',
+    whyTitle: 'Medical ethics and',
+    whyTitleEm: 'artistic precision.',
+    whySub: 'Clinical honesty, studied proportions and real follow-up. Not every procedure is right for every patient — and Dr. Michel will tell you so clearly.',
+    whyDiffs: [
+      { icon: '🎯', title: 'Natural results, not viral trends', desc: 'Dr. Michel rejects social-media aesthetic trends that aren\'t medically appropriate. Surgery improves versions, it doesn\'t transform identities.' },
+      { icon: '🏥', title: 'Hospital OR, not an outpatient clinic', desc: 'Every procedure is performed in certified facilities with full hospital support equipment available at all times.' },
+      { icon: '🤝', title: 'One-on-one care', desc: 'Dr. Michel doesn\'t leave his patients alone after surgery. He designs an optimal, peaceful recovery with you from day one.' },
+      { icon: '🌎', title: 'Continuous international training', desc: 'Specialization in Body Contour Training in Mexico and Colombia. Active attendee at AMCPER congresses to keep techniques current.' },
+    ],
+    whyStats: [
+      { v: '#2600', l: 'CMCPER Cert.' },
+      { v: '3', l: 'Practice locations' },
+      { v: '98%', l: 'Reported satisfaction' },
+      { v: '24/7', l: 'Post-op support' },
+    ],
+    testimonialsEyebrow: 'Real patients',
+    testimonialsTitle: 'What those who already',
+    testimonialsTitleEm: 'trust Dr. Michel say.',
+    testimonials: [
+      { quote: 'As a nurse, I know how to recognize quality medical care when I see it. The team was incredibly professional. Dr. Zuriel has a calm and reassuring manner at all times.', name: 'Nathaly T.', proc: 'Chin Lipo, FaceTite & Endolift' },
+      { quote: 'Excellent surgeon. Very attentive. He explains things well. He listens to your concerns and wishes. Great post-operative care.', name: 'Pam C.', proc: 'Breast augmentation' },
+      { quote: 'What I value most is his honesty. He explained which procedures were right for me and which weren\'t. That builds enormous trust before entering the operating room.', name: 'Verified patient', proc: 'Mommy Makeover' },
+    ],
+    formEyebrow: 'Free evaluation',
+    formTitle: 'Tell us about yourself',
+    formSub: 'This information allows Dr. Michel to arrive at your first consultation already prepared for your case. 100% confidential.',
+    formQ: [
+      'Full name *',
+      'Age *',
+      'Which procedure are you interested in? *',
+      'How many deliveries have you had and what type?',
+      'Current weight and height',
+      'Have you had previous cosmetic surgeries?',
+      'Do you have any chronic illness?',
+      'Do you smoke?',
+      'Are you breastfeeding or pregnant?',
+      'Do you have reference photos of the result you\'re looking for?',
+      'Do you have someone to accompany you during recovery?',
+      'Are you traveling from outside Tijuana or from abroad?',
+      'Do you need accommodation or transportation?',
+      'Approximate date of interest',
+    ],
+    formQ7hint: '(diabetes, hypertension, clotting issues or other)',
+    formQ7detail: 'Which one? Is it controlled?',
+    formQ8detail: 'Approximately how many cigarettes per day?',
+    formProcs: ['Mommy Makeover', 'BBL', 'HD Lipo', 'Breast augmentation', 'Abdominoplasty', 'Facial', 'Other'],
+    formPrevOps: ['No', 'Yes, one', 'Yes, several'],
+    formSmoke: ['No', 'Occasionally', 'Yes, regularly'],
+    formLactancia: ['No', 'Pregnant', 'Breastfeeding'],
+    formPhotos: ['Yes, I have them', 'Not yet', 'I\'ll find them before'],
+    formCompanion: ['Yes', 'No, I need support', 'Not sure yet'],
+    formOrigin: ['I\'m from Tijuana', 'Coming from another state', 'Coming from USA / abroad'],
+    formHospedaje: ['Accommodation', 'Airport transport', 'Clinic transfer', 'I don\'t need it'],
+    formSubmit: 'Send to Dr. Michel via WhatsApp',
+    formNote: 'Submitting opens WhatsApp with your summarized info. Response in under 30 min.',
+    formSuccess: 'Your evaluation has been sent!',
+    formSuccessSub: 'WhatsApp opened with your information. Dr. Michel\'s team will reply within 30 minutes during office hours.',
+    formEdit: 'Edit answers',
+    formPesoPlaceholder: 'Weight (kg)',
+    formTallaPlaceholder: 'Height (cm)',
+    waHeader: '*Pre-consultation Plastic Surgery — Vivezza*\n*Dr. Zuriel Michel Barrera #CMCPER2600*',
+    finalEyebrow: 'Contact us today',
+    finalTitle: 'Let\'s talk today.',
+    sedesTijuanaBadge: 'Medical Tourism · All-Inclusive',
+    sedesTijuanaNote: 'All-inclusive packages for patients from the US and Canada. Coordination from border crossing to recovery.',
+    sedes: [
+      { ciudad: 'Tijuana, B.C.', detalle: 'Erasmo Castellanos q.1874-102\nZona urbana Río · Tijuana, B.C.' },
+      { ciudad: 'Mexico City', detalle: 'Hospital San Ángel Inn Satélite\nOffice 1406' },
+      { ciudad: 'Guadalajara', detalle: 'Médica Golfo de Cortés' },
+    ],
+    mapTitle: 'Vivezza Tijuana',
+  },
+} as const
 
 /* ─── Icons ───────────────────────────────────────────────── */
 function WhatsAppIcon({ size = 18 }: { size?: number }) {
@@ -43,7 +324,8 @@ function StarIcon({ size = 13, color = ACCENT }: { size?: number; color?: string
 }
 
 /* ─── Nav ────────────────────────────────────────────────── */
-function Nav() {
+function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const t = S[lang]
   return (
     <header className="sticky top-0 z-30 section-pad py-3 bg-white/90 backdrop-blur border-b border-ink/8">
       <div className="flex items-center justify-between">
@@ -51,18 +333,27 @@ function Nav() {
           <div className="h-8 w-8 rounded-lg grid place-items-center text-white text-[13px] font-bold" style={{ background: CLINIC }}>V</div>
           <div className="leading-none">
             <div className="text-[15px] font-bold tracking-tight text-ink">Vivezza</div>
-            <div className="text-[8.5px] font-bold tracking-[0.2em] uppercase text-clinic/65">CENTRO QUIRÚRGICO</div>
+            <div className="text-[8.5px] font-bold tracking-[0.2em] uppercase text-clinic/65">
+              {lang === 'es' ? 'CENTRO QUIRÚRGICO' : 'SURGICAL CENTER'}
+            </div>
           </div>
         </Link>
         <div className="flex items-center gap-3">
+          {/* Lang toggle */}
+          <button
+            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+            className="rounded-full border border-ink/15 bg-white px-3 py-1.5 text-[11.5px] font-bold tracking-wider text-ink/70 hover:bg-stone transition-colors"
+          >
+            {lang === 'es' ? 'EN' : 'ES'}
+          </button>
           <a href="#form" className="hidden sm:inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-4 py-2 text-[12.5px] font-semibold text-ink hover:bg-stone transition-colors">
-            Pre-consulta
+            {t.navPre}
           </a>
           <a href="https://wa.me/526649749264" target="_blank" rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-semibold text-white"
             style={{ backgroundColor: '#22C35E' }}>
             <WhatsAppIcon size={14} />
-            WhatsApp
+            {t.navWA}
           </a>
         </div>
       </div>
@@ -71,45 +362,37 @@ function Nav() {
 }
 
 /* ─── 1. Hero ────────────────────────────────────────────── */
-function HeroSection() {
+function HeroSection({ lang }: { lang: Lang }) {
+  const t = S[lang]
   return (
     <section className="section-pad pt-14 pb-16 relative overflow-hidden bg-white">
       <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 h-96 w-96 rounded-full blur-3xl opacity-20"
         style={{ background: `radial-gradient(closest-side, ${ACCENT}60, transparent 70%)` }} />
 
       <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-        {/* Left — copy */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="flex items-center gap-2 text-[12px] font-semibold text-muted">
             <Link href="/" className="hover:text-clinic transition-colors">Vivezza</Link>
             <span className="text-ink/30">/</span>
-            <span style={{ color: ACCENT }}>Cirugía Plástica</span>
+            <span style={{ color: ACCENT }}>{t.breadcrumb}</span>
           </div>
 
           <div className="inline-flex items-center gap-2 self-start rounded-full border px-3.5 py-1.5 text-[11px] font-bold tracking-[0.12em] uppercase"
             style={{ borderColor: ACCENT + '50', backgroundColor: ACCENT_SOFT, color: ACCENT }}>
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            CMCPER Certificado #2600 · Vivezza
+            {t.heroBadge}
           </div>
 
           <h1 className="text-[clamp(2.4rem,5.5vw,4.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-ink">
-            Armonía, proporción<br />
-            <span style={{ color: ACCENT }}>y resultados</span><br />
-            naturales.
+            {t.heroH1a}<br />
+            <span style={{ color: ACCENT }}>{t.heroH1b}</span><br />
+            {t.heroH1c}
           </h1>
 
-          <p className="text-[16px] leading-[1.65] text-muted max-w-[54ch]">
-            El Dr. Zuriel Michel no sigue tendencias virales. Diseña cada procedimiento alrededor de tu anatomía, tu proporción y tus metas — con acompañamiento one-on-one desde la valoración hasta la recuperación completa.
-          </p>
+          <p className="text-[16px] leading-[1.65] text-muted max-w-[54ch]">{t.heroP}</p>
 
-          {/* Trust chips */}
           <div className="flex flex-wrap gap-2.5">
-            {[
-              'CMCPER Certificado #2600',
-              'Body Contour Internacional',
-              'Quirófano JCI Acreditado',
-              'Acompañamiento 1 a 1',
-            ].map((c) => (
+            {t.heroChips.map((c) => (
               <span key={c} className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-stone px-3 py-1.5 text-[11.5px] font-semibold text-ink/70">
                 <CheckIcon size={11} color={CLINIC} />
                 {c}
@@ -117,70 +400,54 @@ function HeroSection() {
             ))}
           </div>
 
-          {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <a href="#form"
               className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
               style={{ backgroundColor: ACCENT, boxShadow: `0 18px 40px -12px ${ACCENT}80` }}>
-              Agenda tu valoración gratuita
+              {t.heroCta}
               <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </a>
             <a href="tel:6649749264"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-4 text-[15px] font-semibold text-ink hover:bg-stone transition-colors">
               <PhoneIcon size={15} />
-              664 974 9264
+              {t.heroPhone}
             </a>
           </div>
         </div>
 
-        {/* Right — doctor card */}
         <div className="lg:col-span-5">
           <div className="relative">
             <div className="relative overflow-hidden rounded-[32px] aspect-[4/5] bg-stone">
-              <Image src="/photos/dr-michel.jpg" alt="Dr. Zuriel Michel Barrera — Cirujano Plástico"
+              <Image src="/photos/dr-michel.jpg" alt="Dr. Zuriel Michel Barrera — Plastic Surgeon"
                 fill className="object-cover object-top" priority />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 50%, rgba(10,16,28,0.65) 100%)' }} />
-
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute top-4 left-4">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink/80 border border-white/60">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Disponible hoy
+                  {t.heroAvailable}
                 </span>
               </div>
-
               <div className="absolute bottom-6 left-6 right-6 text-white">
-                <div className="text-[1.5rem] font-bold leading-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
-                  Dr. Zuriel Michel Barrera
-                </div>
-                <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] mt-1.5 opacity-90">
-                  Cirujano Plástico, Estético y Reconstructivo
-                </div>
+                <div className="text-[1.5rem] font-bold leading-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>{t.doctorName}</div>
+                <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] mt-1.5 opacity-90">{t.doctorRole}</div>
                 <div className="flex items-center gap-1 mt-3">
                   {[1,2,3,4,5].map(i => <StarIcon key={i} size={12} color={ACCENT} />)}
-                  <span className="ml-2 text-[11px] font-semibold opacity-80">Cert. CMCPER #2600</span>
+                  <span className="ml-2 text-[11px] font-semibold opacity-80">{t.doctorCert}</span>
                 </div>
               </div>
             </div>
-
-            {/* Floating cert card */}
             <div className="absolute -bottom-4 -right-3 sm:-right-8 bg-white border border-ink/8 shadow-xl rounded-2xl px-4 py-3.5">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted mb-1">Certificación</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted mb-1">{t.certLabel}</div>
               <div className="text-[1.1rem] font-extrabold text-ink leading-none">#2600</div>
-              <div className="text-[10.5px] font-semibold text-muted mt-0.5">CMCPER</div>
+              <div className="text-[10.5px] font-semibold text-muted mt-0.5">{t.certSub}</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* CMCPER trust bar */}
       <div className="mt-14 flex flex-wrap items-center gap-6 pt-8 border-t border-ink/8">
-        <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">Respaldo institucional</div>
-        {[
-          { label: 'CMCPER', sub: 'Consejo Mexicano de Cirugía Plástica' },
-          { label: 'AMCPER', sub: 'Asociación Mexicana de Cirugía Plástica' },
-          { label: 'JCI', sub: 'Joint Commission International' },
-          { label: 'ISO 9001', sub: 'Gestión de Calidad' },
-        ].map((b) => (
+        <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">{t.trustBarLabel}</div>
+        {t.trustItems.map((b) => (
           <div key={b.label} className="flex items-center gap-2.5 rounded-full border border-ink/10 bg-stone px-4 py-2">
             <span className="text-[13px] font-extrabold" style={{ color: CLINIC }}>{b.label}</span>
             <span className="text-[10.5px] text-muted hidden sm:block">{b.sub}</span>
@@ -192,33 +459,22 @@ function HeroSection() {
 }
 
 /* ─── 2. Cuándo verme ────────────────────────────────────── */
-function WhenSection() {
-  const situations = [
-    { emoji: '🤱', title: 'Después de la maternidad', desc: 'Tu figura cambió con los embarazos y el ejercicio ya no es suficiente para recuperarla.' },
-    { emoji: '⚖️', title: 'Bajaste de peso y tienes piel sobrante', desc: 'La cirugía contorna lo que la dieta y el gym no pueden eliminar.' },
-    { emoji: '👃', title: 'Tu nariz no armoniza con tu rostro', desc: 'No se trata de moda. Se trata de proporción y de sentirte en paz con tu reflejo.' },
-    { emoji: '💪', title: 'Quieres definición real, no solo bajar de peso', desc: 'La Lipo HD y el BBL esculpen lo que el entrenamiento no puede lograr.' },
-    { emoji: '🪞', title: 'El tiempo está cambiando tu rostro', desc: 'Párpados caídos, ptosis o pérdida de contorno que afectan tu confianza.' },
-    { emoji: '💊', title: 'Asimetría o corrección reconstructiva', desc: 'El Dr. Michel atiende diferencias congénitas, post-accidente o revisiones de cirugías previas.' },
-  ]
-
+function WhenSection({ lang }: { lang: Lang }) {
+  const t = S[lang]
   return (
     <section className="section-pad py-20 bg-stone">
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
           <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-          Señales de consulta
+          {t.whenEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">
-          ¿Cuándo es el momento<br /><span className="text-muted font-semibold">de verte con el Dr. Michel?</span>
+          {t.whenTitle}<br /><span className="text-muted font-semibold">{t.whenTitleEm}</span>
         </h2>
-        <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">
-          No necesitas esperar al "momento perfecto". Si alguna de estas situaciones te describe, una valoración sin costo puede darte claridad y un plan real.
-        </p>
+        <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.whenSub}</p>
       </div>
-
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {situations.map((s, i) => (
+        {t.whenSituations.map((s, i) => (
           <div key={i} className="bg-white rounded-2xl border border-ink/8 p-6 hover:border-orange-200 hover:shadow-md transition-all">
             <div className="text-3xl mb-4">{s.emoji}</div>
             <div className="text-[15px] font-bold text-ink mb-2">{s.title}</div>
@@ -226,12 +482,9 @@ function WhenSection() {
           </div>
         ))}
       </div>
-
       <div className="mt-10 text-center">
-        <a href="#form"
-          className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[14px] font-bold text-white transition-transform hover:-translate-y-0.5"
-          style={{ backgroundColor: ACCENT }}>
-          Me identifico — quiero consultar
+        <a href="#form" className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[14px] font-bold text-white transition-transform hover:-translate-y-0.5" style={{ backgroundColor: ACCENT }}>
+          {t.whenCta}
         </a>
       </div>
     </section>
@@ -239,61 +492,38 @@ function WhenSection() {
 }
 
 /* ─── 3. Procedimientos ──────────────────────────────────── */
-const PROCEDURES = [
-  /* Contorno Corporal */
-  { name: 'Liposucción HD / Lipo Vaser', tag: 'Contorno Corporal', desc: 'Definición muscular de alta definición mediante ultrasonido. Abdomen, flancos, espalda y muslos con precisión milimétrica.' },
-  { name: 'Lipoescultura', tag: 'Contorno Corporal', desc: 'Remodelado integral de la silueta redistribuyendo grasa para lograr proporciones naturales y armónicas.' },
-  { name: 'Abdominoplastia (Tummy Tuck)', tag: 'Contorno Corporal', desc: 'Extirpación de piel sobrante y reparación muscular del abdomen. Ideal post-maternidad o tras pérdida de peso significativa.' },
-  { name: 'Mini Abdominoplastia', tag: 'Contorno Corporal', desc: 'Versión de menor alcance para pacientes con exceso localizado bajo el ombligo. Cicatriz discreta y recuperación más rápida.' },
-  { name: 'Mommy Makeover', tag: 'Contorno Corporal', desc: 'Protocolo combinado: abdominoplastia, mamoplastia y lipo en una sola intervención. Recuperación única, resultados integrales.' },
-  { name: 'BBL (Brazilian Butt Lift)', tag: 'Contorno Corporal', desc: 'Transferencia de grasa propia con técnica segura para proyección y forma en glúteos. Sin implantes, resultado natural.' },
-  /* Mamaria */
-  { name: 'Aumento de busto', tag: 'Mamaria', desc: 'Incremento de volumen con implantes de silicón de alta cohesividad. Enfoque en proporción y armonía, no solo en tamaño.' },
-  { name: 'Reducción mamaria', tag: 'Mamaria', desc: 'Alivia dolor de espalda, mejora postura y redefine la silueta cuando el volumen genera molestias físicas o psicológicas.' },
-  { name: 'Mastopexia (levantamiento)', tag: 'Mamaria', desc: 'Reposiciona el busto caído sin cambiar necesariamente el volumen. Puede combinarse con aumento para mayor plenitud.' },
-  /* Facial */
-  { name: 'Lip Lift', tag: 'Facial', desc: 'Eleva y define el labio superior para rejuvenecer y armonizar el tercio inferior del rostro. Resultado permanente y natural.' },
-  { name: 'Lipopapada (Chin Lipo)', tag: 'Facial', desc: 'Elimina la grasa submentoniana para definir el contorno del cuello y la mandíbula. Procedimiento mínimamente invasivo.' },
-  { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinición del ángulo y la línea mandibular para un contorno facial más simétrico y definido.' },
-  { name: 'Mini Lifting Facial', tag: 'Facial', desc: 'Reposiciona tejidos caídos de mejillas y cuello con incisiones mínimas. Rejuvenece sin cambiar tu identidad.' },
-  { name: 'Blefaroplastia', tag: 'Facial', desc: 'Corrección de párpados superiores e inferiores caídos o con exceso de piel. Alta precisión, procedimiento ambulatorio.' },
-  { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Tecnologías de radiofrecuencia para tensar la piel sin cirugía abierta. Ideales como complemento o alternativa al lifting.' },
-]
+function ProceduresSection({ lang }: { lang: Lang }) {
+  const t = S[lang]
+  const [active, setActive] = useState<string>(t.procsTags[0])
 
-function ProceduresSection() {
-  const tags = ['Todos', 'Contorno Corporal', 'Mamaria', 'Facial']
-  const [active, setActive] = useState('Todos')
-  const filtered = active === 'Todos' ? PROCEDURES : PROCEDURES.filter(p => p.tag === active)
+  /* reset filter when lang changes */
+  useEffect(() => { setActive(t.procsTags[0]) }, [lang, t.procsTags])
+
+  const filtered = active === t.procsTags[0] ? t.procs : t.procs.filter(p => (p.tag as string) === active)
 
   return (
     <section id="procedimientos" className="section-pad py-20 bg-white">
       <div className="max-w-3xl mb-10">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
           <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-          Procedimientos especializados
+          {t.procsEyebrow}
         </div>
-        <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">
-          Tres pilares de especialidad
-        </h2>
-        <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">
-          Contorno corporal, cirugía mamaria y armonización facial avanzada — cada área con protocolos y técnicas especializadas.
-        </p>
+        <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">{t.procsTitle}</h2>
+        <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.procsSub}</p>
       </div>
-
       <div className="flex flex-wrap gap-2 mb-8">
-        {tags.map(t => (
-          <button key={t} onClick={() => setActive(t)}
-            className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-all ${active === t ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
-            style={active === t ? { backgroundColor: ACCENT } : {}}>
-            {t}
+        {t.procsTags.map(tag => (
+          <button key={tag} onClick={() => setActive(tag)}
+            className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-all ${active === tag ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
+            style={active === tag ? { backgroundColor: ACCENT } : {}}>
+            {tag}
           </button>
         ))}
       </div>
-
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((p, i) => (
           <div key={i} className="rounded-2xl border border-ink/8 bg-white p-6 hover:shadow-md hover:border-orange-200 transition-all">
-            <div className="flex items-start justify-between mb-3">
+            <div className="mb-3">
               <span className="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                 style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
                 {p.tag}
@@ -308,48 +538,23 @@ function ProceduresSection() {
   )
 }
 
-/* ─── 4. Filosofía & Diferenciadores ─────────────────────── */
-function WhySection() {
-  const diffs = [
-    {
-      icon: '🎯',
-      title: 'Resultados naturales, no tendencias virales',
-      desc: 'El Dr. Michel rechaza las modas estéticas de redes sociales que no son médicamente adecuadas. La cirugía mejora versiones, no transforma identidades.',
-    },
-    {
-      icon: '🏥',
-      title: 'Quirófano hospitalario, no clínica ambulatoria',
-      desc: 'Cada procedimiento se realiza en instalaciones certificadas con equipo de soporte hospitalario completo disponible en todo momento.',
-    },
-    {
-      icon: '🤝',
-      title: 'Acompañamiento one-on-one',
-      desc: 'El Dr. Michel no deja a sus pacientes solos después del quirófano. Diseña contigo una recuperación óptima y tranquila desde el primer día.',
-    },
-    {
-      icon: '🌎',
-      title: 'Formación internacional continua',
-      desc: 'Especialización en Body Contour Training en México y Colombia. Asistente activo a congresos AMCPER para mantener técnicas al día.',
-    },
-  ]
-
+/* ─── 4. Por qué ─────────────────────────────────────────── */
+function WhySection({ lang }: { lang: Lang }) {
+  const t = S[lang]
   return (
     <section className="section-pad py-20 bg-stone">
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: CLINIC }}>
           <span className="h-px w-6 bg-clinic/50" />
-          La filosofía del Dr. Michel
+          {t.whyEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-4">
-          Ética médica y<br /><span className="text-muted font-semibold">precisión artística.</span>
+          {t.whyTitle}<br /><span className="text-muted font-semibold">{t.whyTitleEm}</span>
         </h2>
-        <p className="text-[15px] leading-[1.65] text-muted max-w-[54ch]">
-          Honestidad clínica, proporciones estudiadas y seguimiento real. No todos los procedimientos son para todos los pacientes — y el Dr. Michel te lo dice con claridad.
-        </p>
+        <p className="text-[15px] leading-[1.65] text-muted max-w-[54ch]">{t.whySub}</p>
       </div>
-
       <div className="grid sm:grid-cols-2 gap-5">
-        {diffs.map((d, i) => (
+        {t.whyDiffs.map((d, i) => (
           <div key={i} className="bg-white rounded-2xl border border-ink/8 p-7 flex gap-5">
             <div className="text-3xl shrink-0 mt-0.5">{d.icon}</div>
             <div>
@@ -359,15 +564,8 @@ function WhySection() {
           </div>
         ))}
       </div>
-
-      {/* Stats strip */}
       <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { v: '#2600', l: 'Cert. CMCPER' },
-          { v: '3', l: 'Sedes de atención' },
-          { v: '98%', l: 'Satisfacción reportada' },
-          { v: '24/7', l: 'Soporte post-op' },
-        ].map((s, i) => (
+        {t.whyStats.map((s, i) => (
           <div key={i} className="bg-white rounded-2xl border border-ink/8 p-5 text-center">
             <div className="text-[1.7rem] font-extrabold leading-none mb-1" style={{ color: i < 2 ? ACCENT : 'inherit' }}>{s.v}</div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">{s.l}</div>
@@ -379,52 +577,27 @@ function WhySection() {
 }
 
 /* ─── 5. Testimonios ─────────────────────────────────────── */
-function TestimonialsSection() {
-  const testimonials = [
-    {
-      quote: 'Como enfermera, sé reconocer la atención médica de calidad cuando la veo. El equipo fue increíblemente profesional. El Dr. Zuriel tiene un trato tranquilo y tranquilizador en todo momento.',
-      name: 'Nathaly T.',
-      proc: 'Lipopapada, FaceTite y Endolift',
-      rating: 5,
-    },
-    {
-      quote: 'Excelente cirujano. Muy atento. Explica las cosas bien. Escucha tus preocupaciones y deseos. Gran cuidado postoperatorio.',
-      name: 'Pam C.',
-      proc: 'Aumento de busto',
-      rating: 5,
-    },
-    {
-      quote: 'Lo que más valoro es su honestidad. Me explicó qué procedimientos eran adecuados para mí y cuáles no. Eso genera una confianza enorme antes de entrar al quirófano.',
-      name: 'Paciente verificada',
-      proc: 'Mommy Makeover',
-      rating: 5,
-    },
-  ]
-
+function TestimonialsSection({ lang }: { lang: Lang }) {
+  const t = S[lang]
   return (
     <section className="section-pad py-20 bg-white">
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
           <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-          Pacientes reales
+          {t.testimonialsEyebrow}
         </div>
         <h2 className="text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-3">
-          Lo que dicen quienes<br /><span className="text-muted font-semibold">ya confían en el Dr. Michel.</span>
+          {t.testimonialsTitle}<br /><span className="text-muted font-semibold">{t.testimonialsTitleEm}</span>
         </h2>
       </div>
-
       <div className="grid sm:grid-cols-3 gap-5">
-        {testimonials.map((t, i) => (
+        {t.testimonials.map((item, i) => (
           <div key={i} className="rounded-3xl border border-ink/8 bg-stone p-7 flex flex-col gap-5">
-            <div className="flex gap-1">
-              {Array.from({ length: t.rating }).map((_, j) => <StarIcon key={j} size={13} color={ACCENT} />)}
-            </div>
-            <p className="text-[14px] leading-[1.7] text-ink/80 flex-1">
-              &ldquo;{t.quote}&rdquo;
-            </p>
+            <div className="flex gap-1">{[1,2,3,4,5].map(j => <StarIcon key={j} size={13} color={ACCENT} />)}</div>
+            <p className="text-[14px] leading-[1.7] text-ink/80 flex-1">&ldquo;{item.quote}&rdquo;</p>
             <div>
-              <div className="text-[13.5px] font-bold text-ink">{t.name}</div>
-              <div className="text-[11.5px] font-semibold text-muted mt-0.5">{t.proc}</div>
+              <div className="text-[13.5px] font-bold text-ink">{item.name}</div>
+              <div className="text-[11.5px] font-semibold text-muted mt-0.5">{item.proc}</div>
             </div>
           </div>
         ))}
@@ -433,25 +606,13 @@ function TestimonialsSection() {
   )
 }
 
-/* ─── 6. Formulario pre-consulta ─────────────────────────── */
+/* ─── 6. Formulario ─────────────────────────────────────── */
 type FormData = {
-  nombre: string
-  edad: string
-  procedimiento: string
-  partos: string
-  peso: string
-  talla: string
-  cirugiasPrevias: string
-  enfermedadCronica: string
-  enfermedadDetalle: string
-  fuma: string
-  fumaFrecuencia: string
-  lactancia: string
-  fotosReferencia: string
-  acompanante: string
-  fueraTijuana: string
-  hospedaje: string[]
-  fecha: string
+  nombre: string; edad: string; procedimiento: string; partos: string
+  peso: string; talla: string; cirugiasPrevias: string; enfermedadCronica: string
+  enfermedadDetalle: string; fuma: string; fumaFrecuencia: string; lactancia: string
+  fotosReferencia: string; acompanante: string; fueraTijuana: string
+  hospedaje: string[]; fecha: string
 }
 
 const EMPTY: FormData = {
@@ -461,41 +622,35 @@ const EMPTY: FormData = {
   fueraTijuana: '', hospedaje: [], fecha: '',
 }
 
-function PreConsultaForm() {
+function PreConsultaForm({ lang }: { lang: Lang }) {
+  const t = S[lang]
   const [form, setForm] = useState<FormData>(EMPTY)
   const [sent, setSent] = useState(false)
 
-  const set = (key: keyof FormData, val: string) =>
-    setForm(prev => ({ ...prev, [key]: val }))
-
-  const toggleHospedaje = (val: string) => {
-    setForm(prev => ({
-      ...prev,
-      hospedaje: prev.hospedaje.includes(val)
-        ? prev.hospedaje.filter(v => v !== val)
-        : [...prev.hospedaje, val],
-    }))
-  }
+  const set = (key: keyof FormData, val: string) => setForm(prev => ({ ...prev, [key]: val }))
+  const toggleHospedaje = (val: string) => setForm(prev => ({
+    ...prev,
+    hospedaje: prev.hospedaje.includes(val) ? prev.hospedaje.filter(v => v !== val) : [...prev.hospedaje, val],
+  }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const msg = encodeURIComponent(
-      `*Pre-consulta Cirugía Plástica — Vivezza*\n` +
-      `*Dr. Zuriel Michel Barrera #CMCPER2600*\n\n` +
-      `👤 *Nombre:* ${form.nombre}\n` +
-      `📅 *Edad:* ${form.edad}\n` +
-      `💉 *Procedimiento:* ${form.procedimiento}\n` +
-      (form.procedimiento === 'Mommy Makeover' ? `🤱 *Partos:* ${form.partos}\n` : '') +
-      `⚖️ *Peso / Talla:* ${form.peso} kg / ${form.talla} cm\n` +
-      `🔪 *Cirugías previas:* ${form.cirugiasPrevias}\n` +
-      `🩺 *Enfermedad crónica:* ${form.enfermedadCronica}${form.enfermedadDetalle ? ` — ${form.enfermedadDetalle}` : ''}\n` +
-      `🚬 *Fuma:* ${form.fuma}${form.fumaFrecuencia ? ` (${form.fumaFrecuencia})` : ''}\n` +
-      `🤰 *Lactancia/embarazo:* ${form.lactancia}\n` +
-      `📸 *Fotos de referencia:* ${form.fotosReferencia}\n` +
-      `👫 *Acompañante:* ${form.acompanante}\n` +
-      `✈️ *Viaja desde fuera:* ${form.fueraTijuana}\n` +
-      (form.hospedaje.length ? `🏨 *Necesita:* ${form.hospedaje.join(', ')}\n` : '') +
-      `📆 *Fecha de interés:* ${form.fecha}`
+      `${t.waHeader}\n\n` +
+      `👤 ${form.nombre}\n` +
+      `📅 ${form.edad}\n` +
+      `💉 ${form.procedimiento}\n` +
+      (form.procedimiento === t.formProcs[0] && form.partos ? `🤱 ${form.partos}\n` : '') +
+      `⚖️ ${form.peso} / ${form.talla}\n` +
+      `🔪 ${form.cirugiasPrevias}\n` +
+      `🩺 ${form.enfermedadCronica}${form.enfermedadDetalle ? ` — ${form.enfermedadDetalle}` : ''}\n` +
+      `🚬 ${form.fuma}${form.fumaFrecuencia ? ` (${form.fumaFrecuencia})` : ''}\n` +
+      `🤰 ${form.lactancia}\n` +
+      `📸 ${form.fotosReferencia}\n` +
+      `👫 ${form.acompanante}\n` +
+      `✈️ ${form.fueraTijuana}\n` +
+      (form.hospedaje.length ? `🏨 ${form.hospedaje.join(', ')}\n` : '') +
+      `📆 ${form.fecha}`
     )
     window.open(`https://wa.me/526649749264?text=${msg}`, '_blank')
     setSent(true)
@@ -506,13 +661,11 @@ function PreConsultaForm() {
       <section id="form" className="section-pad py-20 bg-stone">
         <div className="max-w-xl mx-auto text-center">
           <div className="text-5xl mb-5">✅</div>
-          <h3 className="text-[1.8rem] font-bold text-ink mb-3">¡Tu valoración fue enviada!</h3>
-          <p className="text-[15px] text-muted leading-[1.65] mb-6">
-            Se abrió WhatsApp con tu información. El Dr. Michel o su equipo te responden en menos de 30 minutos en horario de atención.
-          </p>
+          <h3 className="text-[1.8rem] font-bold text-ink mb-3">{t.formSuccess}</h3>
+          <p className="text-[15px] text-muted leading-[1.65] mb-6">{t.formSuccessSub}</p>
           <button onClick={() => setSent(false)}
             className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-[13.5px] font-semibold text-ink hover:bg-stone transition-colors">
-            Editar respuestas
+            {t.formEdit}
           </button>
         </div>
       </section>
@@ -522,7 +675,7 @@ function PreConsultaForm() {
   const inputClass = "w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-[14px] font-medium text-ink placeholder-muted/60 focus:outline-none focus:border-clinic/50 focus:ring-2 focus:ring-clinic/10 transition-all"
   const labelClass = "block text-[12.5px] font-bold uppercase tracking-[0.1em] text-ink/60 mb-1.5"
 
-  const RadioGroup = ({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) => (
+  const RadioGroup = ({ value, options, onChange }: { value: string; options: readonly string[]; onChange: (v: string) => void }) => (
     <div className="flex flex-wrap gap-2">
       {options.map(opt => (
         <button key={opt} type="button" onClick={() => onChange(opt)}
@@ -540,95 +693,77 @@ function PreConsultaForm() {
         <div className="max-w-2xl mb-10">
           <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
             <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-            Valoración gratuita
+            {t.formEyebrow}
           </div>
-          <h2 className="text-[clamp(1.9rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-3">
-            Cuéntanos sobre ti
-          </h2>
-          <p className="text-[15px] leading-[1.65] text-muted">
-            Esta información permite que el Dr. Michel llegue a tu primera consulta ya preparado para tu caso. 100% confidencial.
-          </p>
+          <h2 className="text-[clamp(1.9rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-3">{t.formTitle}</h2>
+          <p className="text-[15px] leading-[1.65] text-muted">{t.formSub}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-ink/8 p-7 sm:p-10 flex flex-col gap-7 shadow-sm">
           <div>
-            <label className={labelClass}>1. Nombre completo *</label>
-            <input required className={inputClass} placeholder="Tu nombre" value={form.nombre} onChange={e => set('nombre', e.target.value)} />
+            <label className={labelClass}>1. {t.formQ[0]}</label>
+            <input required className={inputClass} placeholder={lang === 'es' ? 'Tu nombre' : 'Your name'} value={form.nombre} onChange={e => set('nombre', e.target.value)} />
           </div>
-
           <div>
-            <label className={labelClass}>2. Edad *</label>
-            <input required type="number" min="18" max="80" className={`${inputClass} w-32`} placeholder="Ej. 32" value={form.edad} onChange={e => set('edad', e.target.value)} />
+            <label className={labelClass}>2. {t.formQ[1]}</label>
+            <input required type="number" min="18" max="80" className={`${inputClass} w-32`} placeholder="32" value={form.edad} onChange={e => set('edad', e.target.value)} />
           </div>
-
           <div>
-            <label className={labelClass}>3. ¿Qué procedimiento te interesa? *</label>
-            <RadioGroup value={form.procedimiento}
-              options={['Mommy Makeover', 'BBL', 'Lipo HD', 'Aumento de busto', 'Abdominoplastia', 'Facial', 'Otro']}
-              onChange={v => set('procedimiento', v)} />
+            <label className={labelClass}>3. {t.formQ[2]}</label>
+            <RadioGroup value={form.procedimiento} options={t.formProcs} onChange={v => set('procedimiento', v)} />
           </div>
-
-          {form.procedimiento === 'Mommy Makeover' && (
+          {form.procedimiento === t.formProcs[0] && (
             <div className="rounded-2xl border p-5" style={{ borderColor: ACCENT + '50', backgroundColor: ACCENT_SOFT }}>
-              <label className={labelClass}>4. ¿Cuántos partos has tenido y de qué tipo?</label>
-              <input className={inputClass} placeholder="Ej. 2 partos naturales, 1 cesárea" value={form.partos} onChange={e => set('partos', e.target.value)} />
+              <label className={labelClass}>4. {t.formQ[3]}</label>
+              <input className={inputClass} placeholder={lang === 'es' ? 'Ej. 2 partos naturales, 1 cesárea' : 'E.g. 2 natural deliveries, 1 C-section'} value={form.partos} onChange={e => set('partos', e.target.value)} />
             </div>
           )}
-
           <div>
-            <label className={labelClass}>5. Peso actual y talla</label>
+            <label className={labelClass}>5. {t.formQ[4]}</label>
             <div className="flex gap-3">
-              <input className={`${inputClass} flex-1`} placeholder="Peso (kg)" value={form.peso} onChange={e => set('peso', e.target.value)} />
-              <input className={`${inputClass} flex-1`} placeholder="Talla (cm)" value={form.talla} onChange={e => set('talla', e.target.value)} />
+              <input className={`${inputClass} flex-1`} placeholder={t.formPesoPlaceholder} value={form.peso} onChange={e => set('peso', e.target.value)} />
+              <input className={`${inputClass} flex-1`} placeholder={t.formTallaPlaceholder} value={form.talla} onChange={e => set('talla', e.target.value)} />
             </div>
           </div>
-
           <div>
-            <label className={labelClass}>6. ¿Has tenido cirugías estéticas previas?</label>
-            <RadioGroup value={form.cirugiasPrevias} options={['No', 'Sí, una', 'Sí, varias']} onChange={v => set('cirugiasPrevias', v)} />
+            <label className={labelClass}>6. {t.formQ[5]}</label>
+            <RadioGroup value={form.cirugiasPrevias} options={t.formPrevOps} onChange={v => set('cirugiasPrevias', v)} />
           </div>
-
           <div>
-            <label className={labelClass}>7. ¿Tienes alguna enfermedad crónica?</label>
-            <p className="text-[12px] text-muted mb-2">(diabetes, hipertensión, problemas de coagulación u otra)</p>
-            <RadioGroup value={form.enfermedadCronica} options={['No', 'Sí']} onChange={v => set('enfermedadCronica', v)} />
-            {form.enfermedadCronica === 'Sí' && (
-              <input className={`${inputClass} mt-3`} placeholder="¿Cuál? ¿Está controlada?" value={form.enfermedadDetalle} onChange={e => set('enfermedadDetalle', e.target.value)} />
+            <label className={labelClass}>7. {t.formQ[6]}</label>
+            <p className="text-[12px] text-muted mb-2">{t.formQ7hint}</p>
+            <RadioGroup value={form.enfermedadCronica} options={[lang === 'es' ? 'No' : 'No', lang === 'es' ? 'Sí' : 'Yes']} onChange={v => set('enfermedadCronica', v)} />
+            {(form.enfermedadCronica === 'Sí' || form.enfermedadCronica === 'Yes') && (
+              <input className={`${inputClass} mt-3`} placeholder={t.formQ7detail} value={form.enfermedadDetalle} onChange={e => set('enfermedadDetalle', e.target.value)} />
             )}
           </div>
-
           <div>
-            <label className={labelClass}>8. ¿Fumas?</label>
-            <RadioGroup value={form.fuma} options={['No', 'Ocasionalmente', 'Sí, regularmente']} onChange={v => set('fuma', v)} />
-            {(form.fuma === 'Ocasionalmente' || form.fuma === 'Sí, regularmente') && (
-              <input className={`${inputClass} mt-3`} placeholder="¿Cuántos cigarros al día aproximadamente?" value={form.fumaFrecuencia} onChange={e => set('fumaFrecuencia', e.target.value)} />
+            <label className={labelClass}>8. {t.formQ[7]}</label>
+            <RadioGroup value={form.fuma} options={t.formSmoke} onChange={v => set('fuma', v)} />
+            {(form.fuma === t.formSmoke[1] || form.fuma === t.formSmoke[2]) && (
+              <input className={`${inputClass} mt-3`} placeholder={t.formQ8detail} value={form.fumaFrecuencia} onChange={e => set('fumaFrecuencia', e.target.value)} />
             )}
           </div>
-
           <div>
-            <label className={labelClass}>9. ¿Estás en período de lactancia o embarazo?</label>
-            <RadioGroup value={form.lactancia} options={['No', 'Embarazada', 'En lactancia']} onChange={v => set('lactancia', v)} />
+            <label className={labelClass}>9. {t.formQ[8]}</label>
+            <RadioGroup value={form.lactancia} options={t.formLactancia} onChange={v => set('lactancia', v)} />
           </div>
-
           <div>
-            <label className={labelClass}>10. ¿Tienes fotos de referencia del resultado que buscas?</label>
-            <RadioGroup value={form.fotosReferencia} options={['Sí, las tengo', 'Aún no', 'Las buscaré antes']} onChange={v => set('fotosReferencia', v)} />
+            <label className={labelClass}>10. {t.formQ[9]}</label>
+            <RadioGroup value={form.fotosReferencia} options={t.formPhotos} onChange={v => set('fotosReferencia', v)} />
           </div>
-
           <div>
-            <label className={labelClass}>11. ¿Tienes alguien que te acompañe durante la recuperación?</label>
-            <RadioGroup value={form.acompanante} options={['Sí', 'No, necesito apoyo', 'Aún no sé']} onChange={v => set('acompanante', v)} />
+            <label className={labelClass}>11. {t.formQ[10]}</label>
+            <RadioGroup value={form.acompanante} options={t.formCompanion} onChange={v => set('acompanante', v)} />
           </div>
-
           <div>
-            <label className={labelClass}>12. ¿Vienes desde fuera de Tijuana o del extranjero?</label>
-            <RadioGroup value={form.fueraTijuana} options={['Soy de Tijuana', 'Vengo de otro estado', 'Vengo de USA / extranjero']} onChange={v => set('fueraTijuana', v)} />
+            <label className={labelClass}>12. {t.formQ[11]}</label>
+            <RadioGroup value={form.fueraTijuana} options={t.formOrigin} onChange={v => set('fueraTijuana', v)} />
           </div>
-
           <div>
-            <label className={labelClass}>13. ¿Necesitas hospedaje o transporte?</label>
+            <label className={labelClass}>13. {t.formQ[12]}</label>
             <div className="flex flex-wrap gap-2">
-              {['Hospedaje', 'Transporte aeropuerto', 'Traslado clínica', 'No necesito'].map(opt => (
+              {t.formHospedaje.map(opt => (
                 <button key={opt} type="button" onClick={() => toggleHospedaje(opt)}
                   className={`px-4 py-2 rounded-full border text-[13.5px] font-semibold transition-all ${form.hospedaje.includes(opt) ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
                   style={form.hospedaje.includes(opt) ? { backgroundColor: ACCENT } : {}}>
@@ -637,22 +772,18 @@ function PreConsultaForm() {
               ))}
             </div>
           </div>
-
           <div>
-            <label className={labelClass}>14. Fecha aproximada de interés</label>
+            <label className={labelClass}>14. {t.formQ[13]}</label>
             <input type="date" className={`${inputClass} w-full sm:w-64`} value={form.fecha} onChange={e => set('fecha', e.target.value)} />
           </div>
-
           <div className="pt-4 border-t border-ink/8">
             <button type="submit"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full px-10 py-4 text-[15px] font-bold text-white transition-transform hover:-translate-y-0.5"
               style={{ backgroundColor: ACCENT, boxShadow: `0 18px 40px -12px ${ACCENT}80` }}>
               <WhatsAppIcon size={18} />
-              Enviar al Dr. Michel por WhatsApp
+              {t.formSubmit}
             </button>
-            <p className="mt-3 text-[12px] text-muted">
-              Al enviar, se abre WhatsApp con tu información resumida. Respuesta en menos de 30 min.
-            </p>
+            <p className="mt-3 text-[12px] text-muted">{t.formNote}</p>
           </div>
         </form>
       </div>
@@ -661,47 +792,25 @@ function PreConsultaForm() {
 }
 
 /* ─── 7. CTA final + Sedes ───────────────────────────────── */
-function FinalCTA() {
-  const sedes = [
-    {
-      ciudad: 'Tijuana, B.C.',
-      detalle: 'Erasmo Castellanos q.1874-102\nZona urbana Río · Tijuana, B.C.',
-      badge: 'Turismo Médico · All-Inclusive',
-      badgeColor: ACCENT,
-      note: 'Paquetes all-inclusive para pacientes de USA y Canadá. Coordinación desde el cruce fronterizo hasta la recuperación.',
-    },
-    {
-      ciudad: 'Ciudad de México',
-      detalle: 'Hospital San Ángel Inn Satélite\nConsultorio 1406',
-      badge: 'CDMX',
-      badgeColor: CLINIC,
-      note: '',
-    },
-    {
-      ciudad: 'Guadalajara',
-      detalle: 'Médica Golfo de Cortés',
-      badge: 'GDL',
-      badgeColor: CLINIC,
-      note: '',
-    },
+function FinalCTA({ lang }: { lang: Lang }) {
+  const t = S[lang]
+  const sedesBadges = [
+    { badge: t.sedesTijuanaBadge, color: ACCENT, note: t.sedesTijuanaNote },
+    { badge: 'CDMX', color: CLINIC, note: '' },
+    { badge: 'GDL', color: CLINIC, note: '' },
   ]
 
   return (
     <section id="contacto" className="section-pad py-20 bg-white border-t border-ink/8">
       <div className="grid lg:grid-cols-2 gap-12 items-start">
-        {/* Contact */}
         <div>
           <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-5" style={{ color: ACCENT }}>
             <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
-            Contáctanos hoy
+            {t.finalEyebrow}
           </div>
-          <h2 className="text-[clamp(1.7rem,3.5vw,2.8rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-6">
-            Hablemos hoy mismo.
-          </h2>
-
+          <h2 className="text-[clamp(1.7rem,3.5vw,2.8rem)] font-bold leading-[1.1] tracking-[-0.025em] text-ink mb-6">{t.finalTitle}</h2>
           <div className="flex flex-col gap-4 mb-10">
-            <a href="https://wa.me/526649749264"
-              target="_blank" rel="noreferrer"
+            <a href="https://wa.me/526649749264" target="_blank" rel="noreferrer"
               className="inline-flex items-center gap-3 rounded-2xl px-6 py-4 text-[15px] font-bold text-white w-full sm:w-auto"
               style={{ backgroundColor: '#22C35E', boxShadow: '0 14px 30px -10px rgba(34,195,94,0.5)' }}>
               <WhatsAppIcon size={20} />
@@ -713,34 +822,26 @@ function FinalCTA() {
               664 974 9264
             </a>
           </div>
-
-          {/* Sedes */}
           <div className="flex flex-col gap-3">
-            {sedes.map((s) => (
+            {t.sedes.map((s, i) => (
               <div key={s.ciudad} className="rounded-2xl border border-ink/8 bg-stone p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] rounded-full px-2.5 py-1 text-white"
-                    style={{ backgroundColor: s.badgeColor }}>{s.badge}</span>
+                    style={{ backgroundColor: sedesBadges[i].color }}>{sedesBadges[i].badge}</span>
                   <span className="text-[14px] font-bold text-ink">{s.ciudad}</span>
                 </div>
                 <div className="text-[13px] font-medium text-ink/70 leading-[1.7] whitespace-pre-line">{s.detalle}</div>
-                {s.note && <p className="mt-2 text-[12px] text-muted leading-[1.6]">{s.note}</p>}
+                {sedesBadges[i].note && <p className="mt-2 text-[12px] text-muted leading-[1.6]">{sedesBadges[i].note}</p>}
               </div>
             ))}
           </div>
         </div>
-
-        {/* Map — Tijuana */}
         <div className="relative overflow-hidden rounded-3xl aspect-video bg-stone border border-ink/8">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d107250.57!2d-117.0382!3d32.5149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80d9489061bdd3ef%3A0x0!2sTijuana%2C+Baja+California!5e0!3m2!1ses!2smx!4v1"
-            width="100%" height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Vivezza Tijuana"
-            className="absolute inset-0 w-full h-full"
+            width="100%" height="100%" style={{ border: 0 }}
+            allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+            title={t.mapTitle} className="absolute inset-0 w-full h-full"
           />
         </div>
       </div>
@@ -748,20 +849,23 @@ function FinalCTA() {
   )
 }
 
-/* ─── Page ───────────────────────────────────────────────── */
-export default function CirugiaPlasticaPage() {
+/* ─── Inner page (reads searchParams) ───────────────────── */
+function PageInner() {
+  const searchParams = useSearchParams()
+  const initialLang: Lang = searchParams.get('lang') === 'en' ? 'en' : 'es'
+  const [lang, setLang] = useState<Lang>(initialLang)
+
   return (
     <div className="min-h-screen bg-white">
-      <Nav />
-      <HeroSection />
-      <WhenSection />
-      <ProceduresSection />
-      <WhySection />
-      <TestimonialsSection />
-      <PreConsultaForm />
-      <FinalCTA />
+      <Nav lang={lang} setLang={setLang} />
+      <HeroSection lang={lang} />
+      <WhenSection lang={lang} />
+      <ProceduresSection lang={lang} />
+      <WhySection lang={lang} />
+      <TestimonialsSection lang={lang} />
+      <PreConsultaForm lang={lang} />
+      <FinalCTA lang={lang} />
 
-      {/* Sticky WhatsApp FAB */}
       <a href="https://wa.me/526649749264" target="_blank" rel="noreferrer"
         className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full flex items-center justify-center text-white shadow-2xl pulse"
         style={{ backgroundColor: '#22C35E', ['--pulse-color' as string]: '#22C35E55' }}>
@@ -776,5 +880,14 @@ export default function CirugiaPlasticaPage() {
         .pulse { animation: softPulse 2.6s ease-out infinite; }
       `}</style>
     </div>
+  )
+}
+
+/* ─── Page export ────────────────────────────────────────── */
+export default function CirugiaPlasticaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <PageInner />
+    </Suspense>
   )
 }

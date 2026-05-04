@@ -185,7 +185,7 @@ function SpecialtyCard({ sp, lang, S }: { sp: Specialty; lang: Lang; S: StringDi
         <div className="relative flex flex-wrap items-center gap-3">
           {LANDING_PAGES[sp.id] ? (
             <Link
-              href={LANDING_PAGES[sp.id]}
+              href={`${LANDING_PAGES[sp.id]}${lang === 'en' ? '?lang=en' : ''}`}
               className="inline-flex items-center gap-2 rounded-full text-white font-semibold px-5 py-3 text-[13.5px] transition-transform hover:-translate-y-0.5"
               style={{ backgroundColor: sp.accent, boxShadow: `0 14px 30px -12px ${sp.accent}cc` }}
             >
