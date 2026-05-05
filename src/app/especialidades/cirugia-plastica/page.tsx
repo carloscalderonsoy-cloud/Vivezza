@@ -654,9 +654,9 @@ function WhySection({ lang }: { lang: Lang }) {
 
 /* ─── 5. Before/After — split-panel cards ────────────────── */
 const BA_CASES = [
-  { before: '/photos/antes.png', after: '/photos/despues.png' },
-  { before: '/photos/A2.png',    after: '/photos/D2.png' },
   { before: '/photos/A3.png',    after: '/photos/D3.png' },
+  { before: '/photos/A2.png',    after: '/photos/D2.png' },
+  { before: '/photos/antes.png', after: '/photos/despues.png' },
 ]
 
 function CaseCard({ before, after, label, proc, beforeLabel, afterLabel }: {
