@@ -52,7 +52,26 @@ const S = {
     procsEyebrow: 'Procedimientos destacados',
     procsTitle: 'Los más solicitados.',
     procsSub: 'Tres procedimientos de alto impacto, diseñados para resultados naturales y recuperación optimizada.',
-    procsExploreCta: 'Ver todas las especialidades',
+    procsExploreCta: 'Especialidades del Dr. Michel',
+    procsCollapseCta: 'Ocultar lista',
+    procsAllTags: ['Todos', 'Contorno Corporal', 'Mamaria', 'Facial'],
+    procsAll: [
+      { name: 'Liposucción HD / Lipo Vaser', tag: 'Contorno Corporal', desc: 'Definición muscular de alta definición mediante ultrasonido. Abdomen, flancos, espalda y muslos con precisión milimétrica.' },
+      { name: 'Lipoescultura', tag: 'Contorno Corporal', desc: 'Remodelado integral de la silueta redistribuyendo grasa para lograr proporciones naturales y armónicas.' },
+      { name: 'Abdominoplastia (Tummy Tuck)', tag: 'Contorno Corporal', desc: 'Extirpación de piel sobrante y reparación muscular del abdomen. Ideal post-maternidad o tras pérdida de peso significativa.' },
+      { name: 'Mini Abdominoplastia', tag: 'Contorno Corporal', desc: 'Versión de menor alcance para exceso localizado bajo el ombligo. Cicatriz discreta y recuperación más rápida.' },
+      { name: 'Mommy Makeover', tag: 'Contorno Corporal', desc: 'Protocolo combinado: abdominoplastia, mamoplastia y lipo en una sola intervención. Recuperación única, resultados integrales.' },
+      { name: 'BBL (Brazilian Butt Lift)', tag: 'Contorno Corporal', desc: 'Transferencia de grasa propia con técnica segura para proyección y forma en glúteos. Sin implantes, resultado natural.' },
+      { name: 'Aumento de busto', tag: 'Mamaria', desc: 'Implantes de silicón de alta cohesividad. Enfoque en proporción y armonía, no solo en tamaño.' },
+      { name: 'Reducción mamaria', tag: 'Mamaria', desc: 'Alivia dolor de espalda, mejora postura y redefine la silueta cuando el volumen genera molestias.' },
+      { name: 'Mastopexia (levantamiento)', tag: 'Mamaria', desc: 'Reposiciona el busto caído sin cambiar necesariamente el volumen. Puede combinarse con aumento.' },
+      { name: 'Lip Lift', tag: 'Facial', desc: 'Eleva y define el labio superior para rejuvenecer el tercio inferior del rostro. Resultado permanente y natural.' },
+      { name: 'Lipopapada (Chin Lipo)', tag: 'Facial', desc: 'Elimina la grasa submentoniana para definir el contorno del cuello y la mandíbula. Mínimamente invasivo.' },
+      { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinición del ángulo y la línea mandibular para un contorno facial más simétrico y definido.' },
+      { name: 'Mini Lifting Facial', tag: 'Facial', desc: 'Reposiciona tejidos caídos de mejillas y cuello con incisiones mínimas. Rejuvenece sin cambiar tu identidad.' },
+      { name: 'Blefaroplastia', tag: 'Facial', desc: 'Corrección de párpados superiores e inferiores caídos o con exceso de piel. Alta precisión, procedimiento ambulatorio.' },
+      { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Radiofrecuencia para tensar la piel sin cirugía abierta. Ideales como complemento o alternativa al lifting.' },
+    ],
     procsFeatured: [
       {
         name: 'Mommy Makeover',
@@ -84,8 +103,7 @@ const S = {
     beforeAfterDragHint: '← Desliza para comparar →',
     beforeAfterNote: '🔒 Imágenes de referencia ilustrativas. El archivo completo de antes y después se presenta en consulta, con autorización firmada de cada paciente.',
     beforeAfterCases: [
-      { label: 'Caso 1', proc: 'Lipo HD + BBL' },
-      { label: 'Caso 2', proc: 'Mommy Makeover' },
+      { label: 'Caso clínico', proc: 'Lipo HD + BBL' },
     ],
     beforeLabel: 'Antes', afterLabel: 'Después',
     /* why */
@@ -191,7 +209,26 @@ const S = {
     procsEyebrow: 'Featured procedures',
     procsTitle: 'The most requested.',
     procsSub: 'Three high-impact procedures designed for natural results and optimized recovery.',
-    procsExploreCta: 'View all specialties',
+    procsExploreCta: "Dr. Michel's specialties",
+    procsCollapseCta: 'Hide list',
+    procsAllTags: ['All', 'Body Contour', 'Breast', 'Facial'],
+    procsAll: [
+      { name: 'HD Lipo / Vaser Lipo', tag: 'Body Contour', desc: 'High-definition muscle definition using ultrasound. Abdomen, flanks, back and thighs with millimetric precision.' },
+      { name: 'Liposculpture', tag: 'Body Contour', desc: 'Full silhouette remodeling by redistributing fat to achieve natural, harmonious proportions.' },
+      { name: 'Abdominoplasty (Tummy Tuck)', tag: 'Body Contour', desc: 'Removal of excess skin and abdominal muscle repair. Ideal post-maternity or after significant weight loss.' },
+      { name: 'Mini Abdominoplasty', tag: 'Body Contour', desc: 'Smaller-scope version for localized excess below the navel. Discreet scar and faster recovery.' },
+      { name: 'Mommy Makeover', tag: 'Body Contour', desc: 'Combined protocol: abdominoplasty, breast surgery and lipo in a single session. One recovery, comprehensive results.' },
+      { name: 'BBL (Brazilian Butt Lift)', tag: 'Body Contour', desc: 'Own-fat transfer with safe technique for gluteal projection and shape. No implants, natural result.' },
+      { name: 'Breast augmentation', tag: 'Breast', desc: 'High-cohesion silicone implants. Focus on proportion and harmony, not just size.' },
+      { name: 'Breast reduction', tag: 'Breast', desc: 'Relieves back pain, improves posture and redefines the silhouette when volume causes physical discomfort.' },
+      { name: 'Mastopexy (breast lift)', tag: 'Breast', desc: 'Repositions sagging breasts without necessarily changing volume. Can be combined with augmentation.' },
+      { name: 'Lip Lift', tag: 'Facial', desc: 'Lifts and defines the upper lip to rejuvenate the lower third of the face. Permanent and natural result.' },
+      { name: 'Chin Lipo (Lipopapada)', tag: 'Facial', desc: 'Removes submental fat to define the neck and jawline contour. Minimally invasive.' },
+      { name: 'Jaw Contouring', tag: 'Facial', desc: 'Redefinition of the jaw angle and mandibular line for a more symmetrical, defined facial contour.' },
+      { name: 'Mini Facelift', tag: 'Facial', desc: 'Repositions sagging cheek and neck tissue with minimal incisions. Rejuvenates without changing your identity.' },
+      { name: 'Blepharoplasty', tag: 'Facial', desc: 'Correction of drooping upper and lower eyelids or excess skin. High precision, outpatient procedure.' },
+      { name: 'FaceTite & Endolift', tag: 'Facial', desc: 'Radiofrequency to tighten skin without open surgery. Ideal as a complement or alternative to facelift.' },
+    ],
     procsFeatured: [
       {
         name: 'Mommy Makeover',
@@ -222,8 +259,7 @@ const S = {
     beforeAfterDragHint: '← Slide to compare →',
     beforeAfterNote: '🔒 Illustrative reference images. The full before & after archive is presented in consultation, with each patient\'s signed authorization.',
     beforeAfterCases: [
-      { label: 'Case 1', proc: 'HD Lipo + BBL' },
-      { label: 'Case 2', proc: 'Mommy Makeover' },
+      { label: 'Clinical case', proc: 'HD Lipo + BBL' },
     ],
     beforeLabel: 'Before', afterLabel: 'After',
     whyEyebrow: "Dr. Michel's philosophy",
@@ -466,9 +502,24 @@ function WhenSection({ lang }: { lang: Lang }) {
   )
 }
 
-/* ─── 3. Procedures (3 featured) ────────────────────────── */
+/* ─── 3. Procedures (3 featured + expandable full list) ─── */
 function ProceduresSection({ lang }: { lang: Lang }) {
   const t = S[lang]
+  const [expanded, setExpanded] = useState(false)
+  const [activeTag, setActiveTag] = useState<string>(t.procsAllTags[0])
+  const allRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => { setActiveTag(t.procsAllTags[0]) }, [lang, t.procsAllTags])
+
+  const handleExpand = () => {
+    setExpanded(true)
+    setTimeout(() => allRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+  }
+
+  const filtered = activeTag === t.procsAllTags[0]
+    ? t.procsAll
+    : t.procsAll.filter(p => (p.tag as string) === activeTag)
+
   return (
     <section id="procedimientos" className="section-pad py-20 bg-white">
       <div className="max-w-3xl mb-10">
@@ -479,6 +530,7 @@ function ProceduresSection({ lang }: { lang: Lang }) {
         <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.procsSub}</p>
       </div>
 
+      {/* 3 featured cards */}
       <div className="grid sm:grid-cols-3 gap-5 mb-8">
         {t.procsFeatured.map((p, i) => (
           <div key={i} className="rounded-3xl border border-ink/8 bg-white overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
@@ -509,17 +561,53 @@ function ProceduresSection({ lang }: { lang: Lang }) {
         ))}
       </div>
 
-      {/* Explore all specialties */}
-      <div className="flex justify-center">
-        <Link href={`/${lang === 'en' ? '?lang=en' : ''}#especialidades`}
-          className="inline-flex items-center gap-2.5 rounded-full border border-ink/15 bg-white px-6 py-3 text-[13.5px] font-semibold text-ink/80 hover:bg-stone hover:border-ink/25 transition-all">
+      {/* Toggle button */}
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={expanded ? () => setExpanded(false) : handleExpand}
+          className="inline-flex items-center gap-2.5 rounded-full border border-ink/15 bg-white px-6 py-3 text-[13.5px] font-semibold text-ink/80 hover:bg-stone hover:border-ink/25 transition-all"
+        >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={CLINIC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
             <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
           </svg>
-          {t.procsExploreCta}
-        </Link>
+          {expanded ? t.procsCollapseCta : t.procsExploreCta}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}>
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
       </div>
+
+      {/* Expandable full list */}
+      {expanded && (
+        <div ref={allRef} className="rounded-3xl border border-ink/8 bg-stone p-6 sm:p-8">
+          {/* Filter tabs */}
+          <div className="flex flex-wrap gap-2 mb-7">
+            {t.procsAllTags.map(tag => (
+              <button key={tag} onClick={() => setActiveTag(tag)}
+                className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-all ${activeTag === tag ? 'text-white border-transparent' : 'border-ink/15 bg-white text-muted hover:border-ink/30'}`}
+                style={activeTag === tag ? { backgroundColor: ACCENT } : {}}>
+                {tag}
+              </button>
+            ))}
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((p, i) => (
+              <div key={i} className="rounded-2xl border border-ink/8 bg-white p-6 hover:shadow-md hover:border-orange-200 transition-all">
+                <div className="mb-3">
+                  <span className="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+                    style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
+                    {p.tag}
+                  </span>
+                </div>
+                <div className="text-[15px] font-bold text-ink mb-2">{p.name}</div>
+                <p className="text-[13px] leading-[1.6] text-muted">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   )
 }
@@ -611,11 +699,6 @@ function RevealSlider({ beforeSrc, afterSrc, beforeLabel, afterLabel }: {
 
 function BeforeAfterSection({ lang }: { lang: Lang }) {
   const t = S[lang]
-  const cases = [
-    { before: '/photos/patient-consultation.png', after: '/photos/plastic-surgery.png' },
-    { before: '/photos/recovery-room.png', after: '/photos/surgery-team.png' },
-  ]
-
   return (
     <section className="section-pad py-20 bg-white">
       <div className="max-w-3xl mb-12">
@@ -629,27 +712,26 @@ function BeforeAfterSection({ lang }: { lang: Lang }) {
         <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.beforeAfterSub}</p>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-6 mb-8">
-        {cases.map((c, i) => (
-          <div key={i}>
-            <div className="mb-3 flex items-center gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">{t.beforeAfterCases[i].label}</span>
-              <span className="h-px flex-1 bg-ink/8" />
-              <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
-                {t.beforeAfterCases[i].proc}
-              </span>
-            </div>
-            <RevealSlider
-              beforeSrc={c.before} afterSrc={c.after}
-              beforeLabel={t.beforeLabel} afterLabel={t.afterLabel}
-            />
-            <p className="mt-2.5 text-center text-[11.5px] font-semibold text-muted">{t.beforeAfterDragHint}</p>
-          </div>
-        ))}
+      {/* Single case — centered, full width on mobile */}
+      <div className="max-w-sm mx-auto sm:max-w-md">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">{t.beforeAfterCases[0].label}</span>
+          <span className="h-px flex-1 bg-ink/8" />
+          <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+            style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
+            {t.beforeAfterCases[0].proc}
+          </span>
+        </div>
+        <RevealSlider
+          beforeSrc="/photos/antes.png"
+          afterSrc="/photos/despues.png"
+          beforeLabel={t.beforeLabel}
+          afterLabel={t.afterLabel}
+        />
+        <p className="mt-3 text-center text-[12px] font-semibold text-muted">{t.beforeAfterDragHint}</p>
       </div>
 
-      <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 flex items-start gap-4">
+      <div className="mt-8 rounded-2xl border border-orange-200 bg-orange-50 p-5">
         <p className="text-[13px] leading-[1.65] text-ink/75">{t.beforeAfterNote}</p>
       </div>
     </section>
