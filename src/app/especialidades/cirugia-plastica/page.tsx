@@ -103,7 +103,7 @@ const S = {
     beforeAfterNote: '🔒 Material adicional disponible en consulta con autorización firmada de cada paciente.',
     beforeAfterCases: [
       { label: 'Caso 1', proc: 'Lipo HD + BBL' },
-      { label: 'Caso 2', proc: 'Abdominoplastia' },
+      { label: 'Caso 2', proc: 'Rinoplastia' },
       { label: 'Caso 3', proc: 'Mommy Makeover' },
     ],
     beforeLabel: 'Antes', afterLabel: 'Después',
@@ -260,7 +260,7 @@ const S = {
     beforeAfterNote: '🔒 Additional material available in consultation with each patient\'s signed authorization.',
     beforeAfterCases: [
       { label: 'Case 1', proc: 'HD Lipo + BBL' },
-      { label: 'Case 2', proc: 'Abdominoplasty' },
+      { label: 'Case 2', proc: 'Rhinoplasty' },
       { label: 'Case 3', proc: 'Mommy Makeover' },
     ],
     beforeLabel: 'Before', afterLabel: 'After',
