@@ -98,12 +98,13 @@ const S = {
     /* before/after */
     beforeAfterEyebrow: 'Resultados',
     beforeAfterTitle: 'Antes y después.',
-    beforeAfterTitleEm: 'Desliza para comparar.',
-    beforeAfterSub: 'Casos reales del Dr. Michel. Los resultados fotográficos completos se muestran en consulta privada, con pleno respeto a la privacidad de cada paciente.',
-    beforeAfterDragHint: '← Desliza para comparar →',
-    beforeAfterNote: '🔒 Imágenes de referencia ilustrativas. El archivo completo de antes y después se presenta en consulta, con autorización firmada de cada paciente.',
+    beforeAfterTitleEm: 'Resultados reales.',
+    beforeAfterSub: 'Casos del Dr. Michel. El archivo fotográfico completo se presenta en consulta privada, con pleno respeto a la privacidad de cada paciente.',
+    beforeAfterNote: '🔒 Material adicional disponible en consulta con autorización firmada de cada paciente.',
     beforeAfterCases: [
-      { label: 'Caso clínico', proc: 'Lipo HD + BBL' },
+      { label: 'Caso 1', proc: 'Lipo HD + BBL' },
+      { label: 'Caso 2', proc: 'Abdominoplastia' },
+      { label: 'Caso 3', proc: 'Mommy Makeover' },
     ],
     beforeLabel: 'Antes', afterLabel: 'Después',
     /* why */
@@ -254,12 +255,13 @@ const S = {
     ],
     beforeAfterEyebrow: 'Results',
     beforeAfterTitle: 'Before and after.',
-    beforeAfterTitleEm: 'Slide to compare.',
-    beforeAfterSub: "Real cases from Dr. Michel. Full photographic results are shown during private consultation, with full respect for each patient's privacy.",
-    beforeAfterDragHint: '← Slide to compare →',
-    beforeAfterNote: '🔒 Illustrative reference images. The full before & after archive is presented in consultation, with each patient\'s signed authorization.',
+    beforeAfterTitleEm: 'Real results.',
+    beforeAfterSub: "Cases from Dr. Michel. The full photo archive is presented in private consultation, with full respect for each patient's privacy.",
+    beforeAfterNote: '🔒 Additional material available in consultation with each patient\'s signed authorization.',
     beforeAfterCases: [
-      { label: 'Clinical case', proc: 'HD Lipo + BBL' },
+      { label: 'Case 1', proc: 'HD Lipo + BBL' },
+      { label: 'Case 2', proc: 'Abdominoplasty' },
+      { label: 'Case 3', proc: 'Mommy Makeover' },
     ],
     beforeLabel: 'Before', afterLabel: 'After',
     whyEyebrow: "Dr. Michel's philosophy",
@@ -537,9 +539,9 @@ function ProceduresSection({ lang }: { lang: Lang }) {
             style={{ borderTop: `3px solid ${ACCENT}` }}>
             <div className="p-7">
               <div className="text-4xl mb-4">{p.icon}</div>
-              <div className="inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
-                style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
-                {p.tag}
+              <div className="flex items-center gap-1.5 mb-4">
+                <span className="h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: ACCENT }} />
+                <span className="text-[10.5px] font-bold uppercase tracking-[0.15em]" style={{ color: ACCENT }}>{p.tag}</span>
               </div>
               <h3 className="text-[1.3rem] font-extrabold text-ink mb-3 leading-tight">{p.name}</h3>
               <p className="text-[13.5px] leading-[1.65] text-muted mb-5">{p.desc}</p>
@@ -595,11 +597,9 @@ function ProceduresSection({ lang }: { lang: Lang }) {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((p, i) => (
               <div key={i} className="rounded-2xl border border-ink/8 bg-white p-6 hover:shadow-md hover:border-orange-200 transition-all">
-                <div className="mb-3">
-                  <span className="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                    style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
-                    {p.tag}
-                  </span>
+                <div className="flex items-center gap-1.5 mb-3">
+                  <span className="h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: ACCENT }} />
+                  <span className="text-[10.5px] font-bold uppercase tracking-[0.15em]" style={{ color: ACCENT }}>{p.tag}</span>
                 </div>
                 <div className="text-[15px] font-bold text-ink mb-2">{p.name}</div>
                 <p className="text-[13px] leading-[1.6] text-muted">{p.desc}</p>
@@ -649,48 +649,43 @@ function WhySection({ lang }: { lang: Lang }) {
   )
 }
 
-/* ─── 5. Before/After slider ─────────────────────────────── */
-function RevealSlider({ beforeSrc, afterSrc, beforeLabel, afterLabel }: {
-  beforeSrc: string; afterSrc: string; beforeLabel: string; afterLabel: string
+/* ─── 5. Before/After — split-panel cards ────────────────── */
+const BA_CASES = [
+  { before: '/photos/antes.png',               after: '/photos/despues.png' },
+  { before: '/photos/patient-consultation.png', after: '/photos/plastic-surgery.png' },
+  { before: '/photos/recovery-room.png',        after: '/photos/surgery-team.png' },
+]
+
+function CaseCard({ before, after, label, proc, beforeLabel, afterLabel }: {
+  before: string; after: string; label: string; proc: string; beforeLabel: string; afterLabel: string
 }) {
-  const [pos, setPos] = useState(50)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const dragging = useRef(false)
-
-  const move = (clientX: number) => {
-    if (!containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const pct = Math.max(2, Math.min(98, ((clientX - rect.left) / rect.width) * 100))
-    setPos(pct)
-  }
-
   return (
-    <div
-      ref={containerRef}
-      className="relative overflow-hidden rounded-2xl aspect-[3/4] sm:aspect-[4/5] cursor-col-resize select-none touch-none"
-      onMouseDown={() => { dragging.current = true }}
-      onMouseUp={() => { dragging.current = false }}
-      onMouseLeave={() => { dragging.current = false }}
-      onMouseMove={e => { if (dragging.current) move(e.clientX) }}
-      onTouchMove={e => { e.preventDefault(); move(e.touches[0].clientX) }}
-    >
-      {/* Before — full layer */}
-      <div className="absolute inset-0">
-        <Image src={beforeSrc} alt="Before" fill className="object-cover grayscale brightness-75" />
-        <div className="absolute bottom-3 left-3 rounded-full bg-ink/75 backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">{beforeLabel}</div>
+    <div className="rounded-2xl overflow-hidden border border-ink/8 shadow-sm bg-white">
+      {/* Side-by-side image strip */}
+      <div className="flex h-60 sm:h-72">
+        <div className="relative flex-1 overflow-hidden">
+          <Image src={before} alt={beforeLabel} fill className="object-cover grayscale brightness-90" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg,transparent 55%,rgba(10,16,28,0.55) 100%)' }} />
+          <span className="absolute bottom-3 left-3 text-white text-[9.5px] font-bold uppercase tracking-[0.14em] bg-ink/50 backdrop-blur-sm rounded-md px-2 py-0.5">
+            {beforeLabel}
+          </span>
+        </div>
+        {/* 1-px divider */}
+        <div className="w-px bg-white/70 flex-shrink-0 relative z-10" />
+        <div className="relative flex-1 overflow-hidden">
+          <Image src={after} alt={afterLabel} fill className="object-cover" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg,transparent 55%,rgba(10,16,28,0.45) 100%)' }} />
+          <span className="absolute bottom-3 right-3 text-white text-[9.5px] font-bold uppercase tracking-[0.14em] rounded-md px-2 py-0.5" style={{ backgroundColor: ACCENT + 'dd' }}>
+            {afterLabel}
+          </span>
+        </div>
       </div>
-      {/* After — revealed from left */}
-      <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <Image src={afterSrc} alt="After" fill className="object-cover" />
-        <div className="absolute bottom-3 right-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white" style={{ backgroundColor: ACCENT }}>{afterLabel}</div>
-      </div>
-      {/* Divider line */}
-      <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.4)] pointer-events-none" style={{ left: `${pos}%` }}>
-        {/* Handle */}
-        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-10 w-10 rounded-full bg-white shadow-xl flex items-center justify-center border border-white/80">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18l-6-6 6-6M15 6l6 6-6 6" stroke={ACCENT} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+      {/* Footer */}
+      <div className="px-5 py-3.5 flex items-center justify-between border-t border-ink/6">
+        <span className="text-[12.5px] font-bold text-ink">{label}</span>
+        <div className="flex items-center gap-1.5">
+          <span className="h-1 w-1 rounded-full" style={{ backgroundColor: ACCENT }} />
+          <span className="text-[11px] font-semibold text-muted">{proc}</span>
         </div>
       </div>
     </div>
@@ -712,26 +707,21 @@ function BeforeAfterSection({ lang }: { lang: Lang }) {
         <p className="text-[15px] leading-[1.65] text-muted max-w-[56ch]">{t.beforeAfterSub}</p>
       </div>
 
-      {/* Single case — centered, full width on mobile */}
-      <div className="max-w-sm mx-auto sm:max-w-md">
-        <div className="mb-4 flex items-center gap-3">
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">{t.beforeAfterCases[0].label}</span>
-          <span className="h-px flex-1 bg-ink/8" />
-          <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-            style={{ borderColor: ACCENT + '50', color: ACCENT, backgroundColor: ACCENT_SOFT }}>
-            {t.beforeAfterCases[0].proc}
-          </span>
-        </div>
-        <RevealSlider
-          beforeSrc="/photos/antes.png"
-          afterSrc="/photos/despues.png"
-          beforeLabel={t.beforeLabel}
-          afterLabel={t.afterLabel}
-        />
-        <p className="mt-3 text-center text-[12px] font-semibold text-muted">{t.beforeAfterDragHint}</p>
+      <div className="grid sm:grid-cols-3 gap-5 mb-8">
+        {t.beforeAfterCases.map((c, i) => (
+          <CaseCard
+            key={i}
+            before={BA_CASES[i].before}
+            after={BA_CASES[i].after}
+            label={c.label}
+            proc={c.proc}
+            beforeLabel={t.beforeLabel}
+            afterLabel={t.afterLabel}
+          />
+        ))}
       </div>
 
-      <div className="mt-8 rounded-2xl border border-orange-200 bg-orange-50 p-5">
+      <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 flex items-start gap-3">
         <p className="text-[13px] leading-[1.65] text-ink/75">{t.beforeAfterNote}</p>
       </div>
     </section>

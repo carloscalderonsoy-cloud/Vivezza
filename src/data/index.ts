@@ -262,7 +262,7 @@ export interface StringDict {
 export const STRINGS: Record<Lang, StringDict> = {
   es: {
     eyebrow: 'Vivezza · Medical Center',
-    locator: 'Punta del Este · Uruguay',
+    locator: 'Tijuana · Baja California',
     navAbout: 'Filosofía',
     navSpecialties: 'Especialidades',
     navDoctors: 'Médicos',
@@ -291,7 +291,7 @@ export const STRINGS: Record<Lang, StringDict> = {
   },
   en: {
     eyebrow: 'Vivezza · Medical Center',
-    locator: 'Punta del Este · Uruguay',
+    locator: 'Tijuana · Baja California',
     navAbout: 'Philosophy',
     navSpecialties: 'Specialties',
     navDoctors: 'Physicians',

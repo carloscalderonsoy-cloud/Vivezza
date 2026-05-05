@@ -10,18 +10,18 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: 'Vivezza Medical Center — Punta del Este, Uruguay',
+  title: 'Vivezza Medical Center — Tijuana, B.C.',
   description:
-    'Centro médico de excelencia con 9 especialidades, instalaciones de vanguardia y atención integral. Punta del Este, Uruguay.',
+    'Centro médico de excelencia con 9 especialidades, instalaciones de vanguardia y atención integral. Tijuana, B.C..',
   keywords: [
-    'Vivezza', 'Medical Center', 'Punta del Este', 'Uruguay',
+    'Vivezza', 'Medical Center', 'Tijuana', 'Baja California',
     'cirugía plástica', 'bariatría', 'medspa', 'oncología', 'urología',
     'JCI acreditado', 'cirugía robótica',
   ],
   openGraph: {
     title: 'Vivezza Medical Center — Tu salud, nuestra prioridad',
-    description: '9 especialidades. Instalaciones modernas. Atención integral. Punta del Este, Uruguay.',
-    locale: 'es_UY',
+    description: '9 especialidades. Instalaciones modernas. Atención integral. Tijuana, B.C..',
+    locale: 'es_MX',
     type: 'website',
   },
 }
