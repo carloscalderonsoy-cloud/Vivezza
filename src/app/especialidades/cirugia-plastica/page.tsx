@@ -406,18 +406,19 @@ function HeroSection({ lang }: { lang: Lang }) {
             <span className="text-ink/30">/</span>
             <span style={{ color: ACCENT }}>{t.breadcrumb}</span>
           </div>
-          <div className="inline-flex items-center gap-2 self-start rounded-full border px-3.5 py-1.5 text-[11px] font-bold tracking-[0.12em] uppercase"
-            style={{ borderColor: ACCENT + '50', backgroundColor: ACCENT_SOFT, color: ACCENT }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{t.heroBadge}
+          <div className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase"
+            style={{ color: ACCENT }}>
+            <span className="h-px w-6" style={{ backgroundColor: ACCENT }} />
+            {t.heroBadge}
           </div>
           <h1 className="text-[clamp(2.4rem,5.5vw,4.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-ink">
             {t.heroH1a}<br /><span style={{ color: ACCENT }}>{t.heroH1b}</span><br />{t.heroH1c}
           </h1>
           <p className="text-[16px] leading-[1.65] text-muted max-w-[54ch]">{t.heroP}</p>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
             {t.heroChips.map((c) => (
-              <span key={c} className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-stone px-3 py-1.5 text-[11.5px] font-semibold text-ink/70">
-                <CheckIcon size={11} />{c}
+              <span key={c} className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-ink/65">
+                <CheckIcon size={11} color={ACCENT} />{c}
               </span>
             ))}
           </div>
@@ -459,14 +460,16 @@ function HeroSection({ lang }: { lang: Lang }) {
           </div>
         </div>
       </div>
-      <div className="mt-14 flex flex-wrap items-center gap-6 pt-8 border-t border-ink/8">
+      <div className="mt-14 flex flex-wrap items-center gap-5 pt-8 border-t border-ink/8">
         <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">{t.trustBarLabel}</div>
-        {t.trustItems.map((b) => (
-          <div key={b.label} className="flex items-center gap-2.5 rounded-full border border-ink/10 bg-stone px-4 py-2">
-            <span className="text-[13px] font-extrabold" style={{ color: CLINIC }}>{b.label}</span>
-            <span className="text-[10.5px] text-muted hidden sm:block">{b.sub}</span>
-          </div>
-        ))}
+        <div className="flex flex-wrap items-center divide-x divide-ink/15">
+          {t.trustItems.map((b) => (
+            <div key={b.label} className="flex items-center gap-2 px-4 first:pl-0">
+              <span className="text-[13px] font-extrabold" style={{ color: CLINIC }}>{b.label}</span>
+              <span className="text-[10.5px] text-muted hidden sm:block">{b.sub}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -651,9 +654,9 @@ function WhySection({ lang }: { lang: Lang }) {
 
 /* ─── 5. Before/After — split-panel cards ────────────────── */
 const BA_CASES = [
-  { before: '/photos/antes.png',               after: '/photos/despues.png' },
-  { before: '/photos/patient-consultation.png', after: '/photos/plastic-surgery.png' },
-  { before: '/photos/recovery-room.png',        after: '/photos/surgery-team.png' },
+  { before: '/photos/antes.png', after: '/photos/despues.png' },
+  { before: '/photos/A2.png',    after: '/photos/D2.png' },
+  { before: '/photos/A3.png',    after: '/photos/D3.png' },
 ]
 
 function CaseCard({ before, after, label, proc, beforeLabel, afterLabel }: {
